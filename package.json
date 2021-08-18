@@ -1,0 +1,30 @@
+{
+  "name": "node-stackify",
+  "version": "0.3.1",
+  "description": "Tessreact is a fork of Tess and ReactIDE components",
+  "keywords": [
+    "terminal",
+    "nodejs",
+    "bash",
+    "shell",
+    "xtermjs",
+    "node-pty",
+    "powershell",
+    "ide",
+    "react",
+    "readline",
+    "repl",
+    "cli"
+  ],
+  "main": "./index.js",
+  "type": "module",
+  "exports": {
+    "./readline": "./src/readline.js",
+    "./repl": "./src/repl.js"
+  },
+  "author": {
+    "name": "Sahid Miller",
+    "email": "sahid.miller@gmail.com"
+  },
+  "license": "ISC"
+}
