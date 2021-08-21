@@ -26,5 +26,20 @@
     "name": "Sahid Miller",
     "email": "sahid.miller@gmail.com"
   },
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@babel/preset-env": "^7.15.0",
+    "@babel/register": "^7.15.3",
+    "@babel/standalone": "^7.15.3",
+    "@darkwolf/primordials": "^1.2.1",
+    "es-dependency-graph": "^0.1.6",
+    "esbuild": "^0.12.22",
+    "esbuild-esm-loader": "^0.1.0",
+    "esm-loader": "^0.1.0",
+    "node-inspect-extracted": "^1.0.8",
+    "querystring": "^0.2.1",
+    "url": "^0.11.0",
+    "urlite": "^3.0.0",
+    "whatwg-url": "^9.1.0"
+  }
 }
