@@ -103,9 +103,9 @@ function errPath(url) {
 }
 
 async function importModuleDynamically(specifier, { url }) {
-  console.log("importModuleDynamically with spec", specifier, "and url", url, new Error().stack)
+  //console.log("importModuleDynamically with spec", specifier, "and url", url, new Error().stack)
   const ret = await asyncESM.ESMLoader.import(specifier, url);
-  console.log("importModuleDynamically returned", ret, new Error().stack)
+  //console.log("importModuleDynamically returned", ret, new Error().stack)
   return ret
 }
 
@@ -130,16 +130,16 @@ function initializeImportMeta(meta, { url }) {
 import { transform, default as babel } from "@babel/standalone"
 import * as esm from "../../process/esm_loader.js"
 import depGraph from "es-dependency-graph"
-import { ESMLoader as AltLoader } from 'esm-loader/loader.mjs'
+//import { ESMLoader as AltLoader } from 'esm-loader/loader.mjs'
 
 // Strategy for loading a standard JavaScript module.
-translators.set('module', async function moduleStrategy(url) {
-  console.log("Fetching source and translating module for url", url, new Error().stack)
+translators.set('module', async function moduleStrategy(url, isMain) {
+  //console.log("Fetching source and translating module for url", url, new Error().stack)
 
   let { source } = await this._getSource(
     url, { format: 'module' }, defaultGetSource);
   
-  console.log("Source fetched for url", url, "content", source.toString(), new Error().stack)
+  //console.log("Source fetched for url", url, "content", source.toString(), new Error().stack)
 
   assertBufferSource(source, true, 'getSource');
   ({ source } = await this._transformSource(
@@ -156,7 +156,7 @@ translators.set('module', async function moduleStrategy(url) {
     })
   )?.code
 
-  console.log("Source transformed for url", url, "content", source, new Error().stack)
+  //console.log("Source transformed for url", url, "content", source, new Error().stack)
   
   if (!dependencies.length) {
     // const mod = new Module();
@@ -167,41 +167,46 @@ translators.set('module', async function moduleStrategy(url) {
   debug(`Translating StandardModule ${url}`);
   const module = {
     url,
-    async link (addDependentJob) {
-      console.log("running link", new Error().stack)
+    link (addDependentJob) {
+      //console.log("running link", new Error().stack)
       const test = {}
-      console.log("running init import meta", esm.initializeImportMetaObject(module, test));
-      console.log("module after init meta", module, "meta", test, test.resolve)
+      //console.log("running init import meta", esm.initializeImportMetaObject(module, test));
+      //console.log("module after init meta", module, "meta", test, test.resolve)
       //This seems to run import just like handleMainPromise?
       //console.log("import dynamic callback results", await esm.importModuleDynamicallyCallback(module, url));
-      const ret = await dependencies.map(async (specifier) => {
-        console.log("before link", specifier)
-        const depModule = await esm.importModuleDynamicallyCallback(module, specifier)
+      const ret = dependencies.map(async (specifier) => {
+        //console.log("before link", specifier)
+        //To make sure we wait before linked finishes AND so dependent modules finish loading, God willing.
+        await esm.importModuleDynamicallyCallback(module, specifier)
         const dependency = await addDependentJob(specifier)
-        console.log("after link", dependency);
+        //console.log("after link", specifier, dependency);
         return dependency
-      });
+      })
 
-      let filename = fileURLToPath(new URL(url));
-      
-      const mod = new Module();
-      await mod._compile(source, filename)
 
-      console.log("compiling", module.url, dependencies, ret)
-      
-      console.log("ready for next step", module.url, dependencies, ret)
+
+      //console.log("ready for next step", module.url, dependencies, ret)
       return ret;
     },
     instantiate: async (...args) => {
-      console.log("instantiate", ...args, new Error().stack)
+      //console.log("instantiate", ...args, new Error().stack)
     },
     async evaluate (...args) {
-      console.log("evaluate", ...args, new Error().stack)
+      //console.log("evaluate", ...args, new Error().stack)
+      let filename = fileURLToPath(new URL(url));
+      
+      //console.log("compiling", module.url, source)
+      const mod = new Module(filename);
+      mod.source = source
+      Module._cache[filename] = mod;
 
-      console.log("done evaluating")
+      if (isMain) {
+        mod._compile(source, filename)
+      }
+      //console.log("done evaluating")
     },
     getNamespace: (...args) => {
-      console.log("getNamespace", ...args, new Error().stack)
+      //console.log("getNamespace", ...args, new Error().stack)
     }
   }
   callbackMap.set(module, {
