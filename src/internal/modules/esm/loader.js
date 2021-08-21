@@ -176,11 +176,11 @@ class Loader {
   }
 
   async import(specifier, parent) {
-    console.log("import starting for specifier", specifier, "with parent", parent,  new Error().stack);
+    //console.log("import starting for specifier", specifier, "with parent", parent,  new Error().stack);
     const job = await this.getModuleJob(specifier, parent);
-    console.log("got job", job, "for specifier", specifier, "with parent", parent,  new Error().stack);
+    //console.log("got job", job, "for specifier", specifier, "with parent", parent,  new Error().stack);
     const { module } = await job.run();
-    console.log("import job done", module, "for specifier", specifier, "with parent", parent, new Error().stack)
+    //console.log("import job done", module, "for specifier", specifier, "with parent", parent, new Error().stack)
     return module.getNamespace();
   }
 

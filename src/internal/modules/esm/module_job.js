@@ -61,10 +61,10 @@ class ModuleJob {
     // Expose the promise to the ModuleWrap directly for linking below.
     // `this.module` is also filled in below.
     this.modulePromise = ReflectApply(moduleProvider, loader, [url, isMain]);
-    console.log("New module job, creating link func", new Error().stack)
+    //console.log("New module job, creating link func", new Error().stack)
     // Wait for the ModuleWrap instance being linked with all dependencies.
     const link = async () => {
-      console.log("Running link", new Error().stack)
+      //console.log("Running link", new Error().stack)
       this.module = await this.modulePromise;
       // console.log("BismAllah", this.module, new Error().stack)
       // assert(this.module instanceof ModuleWrap);
@@ -80,7 +80,7 @@ class ModuleJob {
         const job = await jobPromise;
         return job.modulePromise;
       });
-      console.log("linked promises", promises)
+      //console.log("linked promises", promises)
 
       if (promises !== undefined)
         await PromiseAll(new SafeArrayIterator(promises));
@@ -89,7 +89,7 @@ class ModuleJob {
     };
     // Promise for the list of all dependencyJobs.
     this.linked = link();
-    console.log("linked dependencies", this.linked)
+    //console.log("linked dependencies", this.linked)
     // This promise is awaited later anyway, so silence
     // 'unhandled rejection' warnings.
     PromisePrototypeCatch(this.linked, noop);
@@ -114,7 +114,7 @@ class ModuleJob {
       }
       jobsInGraph.add(moduleJob);
       const dependencyJobs = await moduleJob.linked;
-      console.log("dependencies", dependencyJobs)
+      //console.log("dependencies", dependencyJobs)
       return PromiseAll(new SafeArrayIterator(
         ArrayPrototypeMap(dependencyJobs, addJobsToDependencyGraph)));
     };
@@ -123,7 +123,7 @@ class ModuleJob {
     try {
       if (!hasPausedEntry && this.inspectBrk) {
         hasPausedEntry = true;
-        console.log(this)
+        //console.log(this)
         // const initWrapper = internalBinding('inspector').callAndPauseOnStart;
         //initWrapper(this.module.instantiate, this.module);
         this.module.instantiate();

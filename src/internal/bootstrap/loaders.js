@@ -167,7 +167,7 @@ let internalBinding;
       // console.log(module)
       if (module == "native_module") {
         return { moduleIds: [], compileFunction: () => {
-          console.log("salam from compile function")
+          //console.log("salam from compile function")
         }}
       }
       mod = bindingObj[module] = {} //getInternalBinding(module);

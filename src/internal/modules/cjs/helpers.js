@@ -53,7 +53,7 @@ function loadNativeModule(filename, request) {
 const urlToFileCache = new SafeMap();
 function makeRequireFunction(mod, redirects) {
   const Module = mod.constructor;
-  console.log("making require function", mod, new Error().stack)
+  //console.log("making require function", mod, new Error().stack)
   let require;
   if (redirects) {
     const id = mod.filename || mod.id;
@@ -95,6 +95,7 @@ function makeRequireFunction(mod, redirects) {
     };
   } else {
     require = function require(path) {
+      //console.log("requiring", path)
       return mod.require(path);
     };
   }

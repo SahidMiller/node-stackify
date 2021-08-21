@@ -45,7 +45,7 @@ import * as esmLoader from '../process/esm_loader.js'
 import { pathToFileURL } from '../url.js';
 
 function runMainESM(mainPath) {
-  console.log("running main esm at path", mainPath);
+  //console.log("running main esm at path", mainPath);
   handleMainPromise(esmLoader.loadESM((ESMLoader) => {
     const main = path.isAbsolute(mainPath) ?
       pathToFileURL(mainPath).href : mainPath;
@@ -74,7 +74,7 @@ async function handleMainPromise(promise) {
 // `require('module')`) even when the entry point is ESM.
 function executeUserEntryPoint(main = process.argv[1]) {
   const resolvedMain = resolveMainPath(main);
-  const useESMLoader = shouldUseESMLoader(resolvedMain);
+  const useESMLoader = false //shouldUseESMLoader(resolvedMain);
   if (useESMLoader) {
     runMainESM(resolvedMain || main);
   } else {

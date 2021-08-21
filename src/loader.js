@@ -684,7 +684,7 @@ function getExportsForCircularRequire(module) {
     Object.setPrototypeOf(
       module.exports, CircularRequirePrototypeWarningProxy);
   }
-
+  //console.log("salam exports", module.exports)
   return module.exports;
 }
 
@@ -696,6 +696,7 @@ function getExportsForCircularRequire(module) {
 //    Then have it load  the file contents before returning its exports
 //    object.
 Module._load = function(request, parent, isMain) {
+  //console.log("Loading", request, parent, isMain, new Error().stack)
   let relResolveCacheIdentifier;
   if (parent) {
     debug('Module._load REQUEST %s parent: %s', request, parent.id);
@@ -734,7 +735,8 @@ Module._load = function(request, parent, isMain) {
     updateChildren(parent, cachedModule, true);
     if (!cachedModule.loaded) {
       const parseCachedModule = cjsParseCache.get(cachedModule);
-      if (!parseCachedModule || parseCachedModule.loaded)
+      //console.log("salam parseCachedModule", parseCachedModule)
+      if (!parseCachedModule || parseCachedModule.loaded) 
         return getExportsForCircularRequire(cachedModule);
       parseCachedModule.loaded = true;
     } else {
@@ -752,7 +754,7 @@ Module._load = function(request, parent, isMain) {
     process.mainModule = module;
     module.id = '.';
   }
-
+  //console.log("adding to cache", Module._cache, filename, module)
   Module._cache[filename] = module;
   if (parent !== undefined) {
     relativeResolveCache[relResolveCacheIdentifier] = filename;
@@ -764,6 +766,7 @@ Module._load = function(request, parent, isMain) {
     threw = false;
   } finally {
     if (threw) {
+      //console.log("removing from cache", filename)
       delete Module._cache[filename];
       if (parent !== undefined) {
         delete relativeResolveCache[relResolveCacheIdentifier];
@@ -994,7 +997,7 @@ function wrapSafe(filename, content, cjsModuleInstance) {
 // the file.
 // Returns exception, if any.
 Module.prototype._compile = function(content, filename) {
-  // console.log("BismAllah", new Error().stack);
+  //console.log("BismAllah", new Error().stack);
   let moduleURL;
   let redirects;
   if (policy?.manifest) {
@@ -1052,21 +1055,27 @@ Module.prototype._compile = function(content, filename) {
   return result;
 };
 
+import { transform, default as babel } from "@babel/standalone"
+
 // Native extension for .js
 Module._extensions['.js'] = function(module, filename) {
   //console.log(module, filename)
   //TODO God willing: short circuit if already compiled to ES6, God willing.
   //Try to do one more nesting just in case, God willing.
-  if (!filename.endsWith("test.js") && !filename.endsWith("test1.js") && String.prototype.endsWith.call(filename, '.js')) {
+  let isModule = false;
+  if (String.prototype.endsWith.call(filename, '.js')) {
     const pkg = readPackageScope(filename);
     // Function require shouldn't be used in ES modules.
     if (pkg?.data?.type === 'module') {
-      const parent = moduleParentCache.get(module);
-      const parentPath = parent?.filename;
-      const packageJsonPath = path.resolve(pkg.path, 'package.json');
-      throw new ERR_REQUIRE_ESM(filename, parentPath, packageJsonPath);
+      isModule = true
+      // const parent = moduleParentCache.get(module);
+      // const parentPath = parent?.filename;
+      // const packageJsonPath = path.resolve(pkg.path, 'package.json');
+      // throw new ERR_REQUIRE_ESM(filename, parentPath, packageJsonPath);
     }
   }
+
+  //console.log("before compile", module)
   // If already analyzed the source, then it will be cached.
   const cached = cjsParseCache.get(module);
   let content;
@@ -1075,7 +1084,18 @@ Module._extensions['.js'] = function(module, filename) {
     cached.source = undefined;
   } else {
     content = fs.readFileSync(filename, 'utf8');
+
+    if (isModule) {
+      content = (
+        babel.transform(content, {
+          presets: ["env"],
+          sourceType: 'module',
+          filename
+        })
+      )?.code
+    }
   }
+
   module._compile(content, filename);
 };
 
