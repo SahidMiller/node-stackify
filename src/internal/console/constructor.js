@@ -4,7 +4,7 @@
 // console. It's exported for backwards compatibility.
 
 // const { trace } = internalBinding('trace_events');
-import errors from "../errors";
+import errors from "../errors.js";
 const {
   isStackOverflowError,
   codes: {

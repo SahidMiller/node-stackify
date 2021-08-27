@@ -19,7 +19,7 @@ import {
 
 import { commonPrefix, kSubstringSearch } from "../readline/utils.js";
 
-import { inpect } from "util";
+import { inspect } from "util";
 import { getStringWidth } from "../inspect.js";
 
 import { debuglog } from "util";
@@ -769,12 +769,14 @@ function setupReverseSearch(repl) {
 
   return { reverseSearch };
 }
+const kStandaloneREPL = Symbol("kStandaloneREPL");
+const REPL_MODE_SLOPPY = Symbol("repl-sloppy");
 
-export default {
-  REPL_MODE_SLOPPY: Symbol("repl-sloppy"),
+export {
   REPL_MODE_STRICT,
   isRecoverableError,
-  kStandaloneREPL: Symbol("kStandaloneREPL"),
   setupPreview,
   setupReverseSearch,
+  kStandaloneREPL,
+  REPL_MODE_SLOPPY,
 };

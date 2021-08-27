@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 import {
   Array,
@@ -31,15 +31,35 @@ import {
   SymbolIterator,
   SymbolToStringTag,
   decodeURIComponent,
-}  from "@darkwolf/primordials";
+} from "@darkwolf/primordials";
 
 import { inspect } from "node-inspect-extracted";
 import { encodeStr, hexTable, isHexTable } from "./querystring.js";
 
 import { getConstructorOf, removeColors } from "./util.js";
 import { codes } from "./errors.js";
-const { ERR_ARG_NOT_ITERABLE, ERR_INVALID_ARG_TYPE, ERR_INVALID_ARG_VALUE, ERR_INVALID_FILE_URL_HOST, ERR_INVALID_FILE_URL_PATH, ERR_INVALID_THIS, ERR_INVALID_TUPLE, ERR_INVALID_URL, ERR_INVALID_URL_SCHEME, ERR_MISSING_ARGS } = codes
-import { CHAR_AMPERSAND, CHAR_BACKWARD_SLASH, CHAR_EQUAL, CHAR_FORWARD_SLASH, CHAR_LOWERCASE_A, CHAR_LOWERCASE_Z, CHAR_PERCENT, CHAR_PLUS } from "./constants.js";
+const {
+  ERR_ARG_NOT_ITERABLE,
+  ERR_INVALID_ARG_TYPE,
+  ERR_INVALID_ARG_VALUE,
+  ERR_INVALID_FILE_URL_HOST,
+  ERR_INVALID_FILE_URL_PATH,
+  ERR_INVALID_THIS,
+  ERR_INVALID_TUPLE,
+  ERR_INVALID_URL,
+  ERR_INVALID_URL_SCHEME,
+  ERR_MISSING_ARGS,
+} = codes;
+import {
+  CHAR_AMPERSAND,
+  CHAR_BACKWARD_SLASH,
+  CHAR_EQUAL,
+  CHAR_FORWARD_SLASH,
+  CHAR_LOWERCASE_A,
+  CHAR_LOWERCASE_Z,
+  CHAR_PERCENT,
+  CHAR_PLUS,
+} from "./constants.js";
 import path from "path";
 
 import { validateCallback, validateObject } from "./validators.js";
@@ -47,35 +67,36 @@ import { validateCallback, validateObject } from "./validators.js";
 import querystring from "querystring";
 
 const { platform } = process;
-const isWindows = platform === 'win32';
+const isWindows = platform === "win32";
 
-const setURLConstructor = () => {}
+const setURLConstructor = () => {};
 
 const URL_FLAGS_CANNOT_BE_BASE = 2;
 const URL_FLAGS_SPECIAL = 16;
-const URL_FLAGS_HAS_USERNAME = 32
-const URL_FLAGS_HAS_PASSWORD = 64
-const URL_FLAGS_HAS_HOST = 128
-const URL_FLAGS_HAS_PATH = 256
-const URL_FLAGS_HAS_QUERY = 512
-const URL_FLAGS_HAS_FRAGMENT = 1024
-const kSchemeStart = 0
-const kHost = 10
-const kHostname = 11
-const kPort = 12
-const kPathStart = 16
-const kQuery = 19
-const kFragment = 20
+const URL_FLAGS_HAS_USERNAME = 32;
+const URL_FLAGS_HAS_PASSWORD = 64;
+const URL_FLAGS_HAS_HOST = 128;
+const URL_FLAGS_HAS_PATH = 256;
+const URL_FLAGS_HAS_QUERY = 512;
+const URL_FLAGS_HAS_FRAGMENT = 1024;
+const kSchemeStart = 0;
+const kHost = 10;
+const kHostname = 11;
+const kPort = 12;
+const kPathStart = 16;
+const kQuery = 19;
+const kFragment = 20;
 
 // import { parse } from "url"
 
-const context = Symbol('context');
-const cannotBeBase = Symbol('cannot-be-base');
-const cannotHaveUsernamePasswordPort =
-    Symbol('cannot-have-username-password-port');
-const special = Symbol('special');
-const searchParams = Symbol('query');
-const kFormat = Symbol('format');
+const context = Symbol("context");
+const cannotBeBase = Symbol("cannot-be-base");
+const cannotHaveUsernamePasswordPort = Symbol(
+  "cannot-have-username-password-port"
+);
+const special = Symbol("special");
+const searchParams = Symbol("query");
+const kFormat = Symbol("format");
 
 // https://tc39.github.io/ecma262/#sec-%iteratorprototype%-object
 const IteratorPrototype = ObjectGetPrototypeOf(
@@ -83,23 +104,22 @@ const IteratorPrototype = ObjectGetPrototypeOf(
 );
 
 const unpairedSurrogateRe =
-    /(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])/;
+  /(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])/;
 function toUSVString(val) {
   const str = `${val}`;
   // As of V8 5.5, `str.search()` (and `unpairedSurrogateRe[@@search]()`) are
   // slower than `unpairedSurrogateRe.exec()`.
   const match = RegExpPrototypeExec(unpairedSurrogateRe, str);
-  if (!match)
-    return str;
+  if (!match) return str;
   return _toUSVString(str, match.index);
 }
 
 // Refs: https://html.spec.whatwg.org/multipage/browsers.html#concept-origin-opaque
-const kOpaqueOrigin = 'null';
+const kOpaqueOrigin = "null";
 
 // Refs: https://html.spec.whatwg.org/multipage/browsers.html#ascii-serialisation-of-an-origin
 function serializeTupleOrigin(scheme, host, port) {
-  return `${scheme}//${host}${port === null ? '' : `:${port}`}`;
+  return `${scheme}//${host}${port === null ? "" : `:${port}`}`;
 }
 
 // This class provides the internal state of a URL object. An instance of this
@@ -111,9 +131,9 @@ function serializeTupleOrigin(scheme, host, port) {
 class URLContext {
   constructor() {
     this.flags = 0;
-    this.scheme = ':';
-    this.username = '';
-    this.password = '';
+    this.scheme = ":";
+    this.username = "";
+    this.password = "";
     this.host = null;
     this.port = null;
     this.path = [];
@@ -130,7 +150,7 @@ class URLSearchParams {
   constructor(init = undefined) {
     if (init === null || init === undefined) {
       this[searchParams] = [];
-    } else if (typeof init === 'object' || typeof init === 'function') {
+    } else if (typeof init === "object" || typeof init === "function") {
       const method = init[SymbolIterator];
       if (method === this[SymbolIterator]) {
         // While the spec does not have this branch, we can use it as a
@@ -138,18 +158,20 @@ class URLSearchParams {
         const childParams = init[searchParams];
         this[searchParams] = childParams.slice();
       } else if (method !== null && method !== undefined) {
-        if (typeof method !== 'function') {
-          throw new ERR_ARG_NOT_ITERABLE('Query pairs');
+        if (typeof method !== "function") {
+          throw new ERR_ARG_NOT_ITERABLE("Query pairs");
         }
 
         // Sequence<sequence<USVString>>
         // Note: per spec we have to first exhaust the lists then process them
         const pairs = [];
         for (const pair of init) {
-          if ((typeof pair !== 'object' && typeof pair !== 'function') ||
-              pair === null ||
-              typeof pair[SymbolIterator] !== 'function') {
-            throw new ERR_INVALID_TUPLE('Each query pair', '[name, value]');
+          if (
+            (typeof pair !== "object" && typeof pair !== "function") ||
+            pair === null ||
+            typeof pair[SymbolIterator] !== "function"
+          ) {
+            throw new ERR_INVALID_TUPLE("Each query pair", "[name, value]");
           }
           const convertedPair = [];
           for (const element of pair)
@@ -160,7 +182,7 @@ class URLSearchParams {
         this[searchParams] = [];
         for (const pair of pairs) {
           if (pair.length !== 2) {
-            throw new ERR_INVALID_TUPLE('Each query pair', '[name, value]');
+            throw new ERR_INVALID_TUPLE("Each query pair", "[name, value]");
           }
           ArrayPrototypePush(this[searchParams], pair[0], pair[1]);
         }
@@ -182,7 +204,7 @@ class URLSearchParams {
     } else {
       // USVString
       init = toUSVString(init);
-      if (init[0] === '?') init = init.slice(1);
+      if (init[0] === "?") init = init.slice(1);
       initSearchParams(this, init);
     }
 
@@ -192,13 +214,13 @@ class URLSearchParams {
 
   [inspect.custom](recurseTimes, ctx) {
     if (!this || !this[searchParams] || this[searchParams][searchParams]) {
-      throw new ERR_INVALID_THIS('URLSearchParams');
+      throw new ERR_INVALID_THIS("URLSearchParams");
     }
 
-    if (typeof recurseTimes === 'number' && recurseTimes < 0)
-      return ctx.stylize('[Object]', 'special');
+    if (typeof recurseTimes === "number" && recurseTimes < 0)
+      return ctx.stylize("[Object]", "special");
 
-    const separator = ', ';
+    const separator = ", ";
     const innerOpts = { ...ctx };
     if (recurseTimes !== null) {
       innerOpts.depth = recurseTimes - 1;
@@ -210,7 +232,8 @@ class URLSearchParams {
     for (let i = 0; i < list.length; i += 2)
       ArrayPrototypePush(
         output,
-        `${innerInspect(list[i])} => ${innerInspect(list[i + 1])}`);
+        `${innerInspect(list[i])} => ${innerInspect(list[i + 1])}`
+      );
 
     const length = ArrayPrototypeReduce(
       output,
@@ -218,21 +241,25 @@ class URLSearchParams {
       -separator.length
     );
     if (length > ctx.breakLength) {
-      return `${this.constructor.name} {\n` +
-      `  ${ArrayPrototypeJoin(output, ',\n  ')} }`;
+      return (
+        `${this.constructor.name} {\n` +
+        `  ${ArrayPrototypeJoin(output, ",\n  ")} }`
+      );
     } else if (output.length) {
-      return `${this.constructor.name} { ` +
-      `${ArrayPrototypeJoin(output, separator)} }`;
+      return (
+        `${this.constructor.name} { ` +
+        `${ArrayPrototypeJoin(output, separator)} }`
+      );
     }
     return `${this.constructor.name} {}`;
   }
 
   append(name, value) {
     if (!this || !this[searchParams] || this[searchParams][searchParams]) {
-      throw new ERR_INVALID_THIS('URLSearchParams');
+      throw new ERR_INVALID_THIS("URLSearchParams");
     }
     if (arguments.length < 2) {
-      throw new ERR_MISSING_ARGS('name', 'value');
+      throw new ERR_MISSING_ARGS("name", "value");
     }
 
     name = toUSVString(name);
@@ -243,15 +270,15 @@ class URLSearchParams {
 
   delete(name) {
     if (!this || !this[searchParams] || this[searchParams][searchParams]) {
-      throw new ERR_INVALID_THIS('URLSearchParams');
+      throw new ERR_INVALID_THIS("URLSearchParams");
     }
     if (arguments.length < 1) {
-      throw new ERR_MISSING_ARGS('name');
+      throw new ERR_MISSING_ARGS("name");
     }
 
     const list = this[searchParams];
     name = toUSVString(name);
-    for (let i = 0; i < list.length;) {
+    for (let i = 0; i < list.length; ) {
       const cur = list[i];
       if (cur === name) {
         list.splice(i, 2);
@@ -264,10 +291,10 @@ class URLSearchParams {
 
   get(name) {
     if (!this || !this[searchParams] || this[searchParams][searchParams]) {
-      throw new ERR_INVALID_THIS('URLSearchParams');
+      throw new ERR_INVALID_THIS("URLSearchParams");
     }
     if (arguments.length < 1) {
-      throw new ERR_MISSING_ARGS('name');
+      throw new ERR_MISSING_ARGS("name");
     }
 
     const list = this[searchParams];
@@ -282,10 +309,10 @@ class URLSearchParams {
 
   getAll(name) {
     if (!this || !this[searchParams] || this[searchParams][searchParams]) {
-      throw new ERR_INVALID_THIS('URLSearchParams');
+      throw new ERR_INVALID_THIS("URLSearchParams");
     }
     if (arguments.length < 1) {
-      throw new ERR_MISSING_ARGS('name');
+      throw new ERR_MISSING_ARGS("name");
     }
 
     const list = this[searchParams];
@@ -301,10 +328,10 @@ class URLSearchParams {
 
   has(name) {
     if (!this || !this[searchParams] || this[searchParams][searchParams]) {
-      throw new ERR_INVALID_THIS('URLSearchParams');
+      throw new ERR_INVALID_THIS("URLSearchParams");
     }
     if (arguments.length < 1) {
-      throw new ERR_MISSING_ARGS('name');
+      throw new ERR_MISSING_ARGS("name");
     }
 
     const list = this[searchParams];
@@ -319,10 +346,10 @@ class URLSearchParams {
 
   set(name, value) {
     if (!this || !this[searchParams] || this[searchParams][searchParams]) {
-      throw new ERR_INVALID_THIS('URLSearchParams');
+      throw new ERR_INVALID_THIS("URLSearchParams");
     }
     if (arguments.length < 2) {
-      throw new ERR_MISSING_ARGS('name', 'value');
+      throw new ERR_MISSING_ARGS("name", "value");
     }
 
     const list = this[searchParams];
@@ -333,7 +360,7 @@ class URLSearchParams {
     // the value of the first such name-value pair to `value` and remove the
     // others.
     let found = false;
-    for (let i = 0; i < list.length;) {
+    for (let i = 0; i < list.length; ) {
       const cur = list[i];
       if (cur === name) {
         if (!found) {
@@ -391,8 +418,7 @@ class URLSearchParams {
           const mid = start + step;
           let end = mid + step;
           end = end < len ? end : len;
-          if (mid > end)
-            continue;
+          if (mid > end) continue;
           merge(a, start, mid, end, lBuffer, rBuffer);
         }
       }
@@ -406,15 +432,15 @@ class URLSearchParams {
   // must be set to `entries`.
   entries() {
     if (!this || !this[searchParams] || this[searchParams][searchParams]) {
-      throw new ERR_INVALID_THIS('URLSearchParams');
+      throw new ERR_INVALID_THIS("URLSearchParams");
     }
 
-    return createSearchParamsIterator(this, 'key+value');
+    return createSearchParamsIterator(this, "key+value");
   }
 
   forEach(callback, thisArg = undefined) {
     if (!this || !this[searchParams] || this[searchParams][searchParams]) {
-      throw new ERR_INVALID_THIS('URLSearchParams');
+      throw new ERR_INVALID_THIS("URLSearchParams");
     }
     validateCallback(callback);
 
@@ -434,25 +460,25 @@ class URLSearchParams {
   // https://heycam.github.io/webidl/#es-iterable
   keys() {
     if (!this || !this[searchParams] || this[searchParams][searchParams]) {
-      throw new ERR_INVALID_THIS('URLSearchParams');
+      throw new ERR_INVALID_THIS("URLSearchParams");
     }
 
-    return createSearchParamsIterator(this, 'key');
+    return createSearchParamsIterator(this, "key");
   }
 
   values() {
     if (!this || !this[searchParams] || this[searchParams][searchParams]) {
-      throw new ERR_INVALID_THIS('URLSearchParams');
+      throw new ERR_INVALID_THIS("URLSearchParams");
     }
 
-    return createSearchParamsIterator(this, 'value');
+    return createSearchParamsIterator(this, "value");
   }
 
   // https://heycam.github.io/webidl/#es-stringifier
   // https://url.spec.whatwg.org/#urlsearchparams-stringification-behavior
   toString() {
     if (!this || !this[searchParams] || this[searchParams][searchParams]) {
-      throw new ERR_INVALID_THIS('URLSearchParams');
+      throw new ERR_INVALID_THIS("URLSearchParams");
     }
 
     return serializeParams(this[searchParams]);
@@ -472,7 +498,7 @@ ObjectDefineProperties(URLSearchParams.prototype, {
   keys: { enumerable: true },
   values: { enumerable: true },
   toString: { enumerable: true },
-  [SymbolToStringTag]: { configurable: true, value: 'URLSearchParams' },
+  [SymbolToStringTag]: { configurable: true, value: "URLSearchParams" },
 
   // https://heycam.github.io/webidl/#es-iterable-entries
   [SymbolIterator]: {
@@ -482,100 +508,13 @@ ObjectDefineProperties(URLSearchParams.prototype, {
   },
 });
 
-function onParseComplete(flags = null, protocol = null, username = null, password = null,
-                         host = null, port = null, path = null, query = null, fragment = null) {
-  const ctx = this[context];
-  ctx.flags = flags;
-  ctx.scheme = protocol;
-  ctx.username = (flags & URL_FLAGS_HAS_USERNAME) !== 0 ? username : '';
-  ctx.password = (flags & URL_FLAGS_HAS_PASSWORD) !== 0 ? password : '';
-  ctx.port = port;
-  ctx.path = (flags & URL_FLAGS_HAS_PATH) !== 0 ? path : [];
-  ctx.query = query;
-  ctx.fragment = fragment;
-  ctx.host = host;
-  if (!this[searchParams]) { // Invoked from URL constructor
-    this[searchParams] = new URLSearchParams();
-    this[searchParams][context] = this;
-  }
-  initSearchParams(this[searchParams], query);
-}
-
-function onParseError(flags, input) {
-  throw new ERR_INVALID_URL(input);
-}
-
-function onParseProtocolComplete(flags, protocol, username, password,
-                                 host, port, path, query, fragment) {
-  const ctx = this[context];
-  if ((flags & URL_FLAGS_SPECIAL) !== 0) {
-    ctx.flags |= URL_FLAGS_SPECIAL;
-  } else {
-    ctx.flags &= ~URL_FLAGS_SPECIAL;
-  }
-  ctx.scheme = protocol;
-  ctx.port = port;
-}
-
-function onParseHostnameComplete(flags, protocol, username, password,
-                                 host, port, path, query, fragment) {
-  const ctx = this[context];
-  if ((flags & URL_FLAGS_HAS_HOST) !== 0) {
-    ctx.host = host;
-    ctx.flags |= URL_FLAGS_HAS_HOST;
-  } else {
-    ctx.host = null;
-    ctx.flags &= ~URL_FLAGS_HAS_HOST;
-  }
-}
-
-function onParsePortComplete(flags, protocol, username, password,
-                             host, port, path, query, fragment) {
-  this[context].port = port;
-}
-
-function onParseHostComplete(flags, protocol, username, password,
-                             host, port, path, query, fragment) {
-  ReflectApply(onParseHostnameComplete, this, arguments);
-  if (port !== null || ((flags & URL_FLAGS_IS_DEFAULT_SCHEME_PORT) !== 0))
-    ReflectApply(onParsePortComplete, this, arguments);
-}
-
-function onParsePathComplete(flags, protocol, username, password,
-                             host, port, path, query, fragment) {
-  const ctx = this[context];
-  if ((flags & URL_FLAGS_HAS_PATH) !== 0) {
-    ctx.path = path;
-    ctx.flags |= URL_FLAGS_HAS_PATH;
-  } else {
-    ctx.path = [];
-    ctx.flags &= ~URL_FLAGS_HAS_PATH;
-  }
-
-  // The C++ binding may set host to empty string.
-  if ((flags & URL_FLAGS_HAS_HOST) !== 0) {
-    ctx.host = host;
-    ctx.flags |= URL_FLAGS_HAS_HOST;
-  }
-}
-
-function onParseSearchComplete(flags, protocol, username, password,
-                               host, port, path, query, fragment) {
-  this[context].query = query;
-}
-
-function onParseHashComplete(flags, protocol, username, password,
-                             host, port, path, query, fragment) {
-  this[context].fragment = fragment;
-}
-
-import { URL } from "whatwg-url"
+import { URL } from "whatwg-url";
 
 // class URL extends BaseURL {
 //   constructor(input, base) {
 //     super(input, base);
 //     this[context] = new URLContext();
-    
+
 //     console.log(this)
 //     console.log(this.href)
 
@@ -587,7 +526,7 @@ import { URL } from "whatwg-url"
 //     if (base !== undefined) {
 //       base_context = new URL(base)[context];
 //     }
-    
+
 //     this[context] = new URLContext();
 
 //     const {
@@ -936,8 +875,7 @@ import { URL } from "whatwg-url"
 // });
 
 function update(url, params) {
-  if (!url)
-    return;
+  if (!url) return;
 
   const ctx = url[context];
   const serializedParams = params.toString();
@@ -965,7 +903,7 @@ function parseParams(qs) {
   let pairStart = 0;
   let lastPos = 0;
   let seenSep = false;
-  let buf = '';
+  let buf = "";
   let encoded = false;
   let encodeCheck = 0;
   let i;
@@ -980,18 +918,15 @@ function parseParams(qs) {
         continue;
       }
 
-      if (lastPos < i)
-        buf += qs.slice(lastPos, i);
-      if (encoded)
-        buf = querystring.unescape(buf);
+      if (lastPos < i) buf += qs.slice(lastPos, i);
+      if (encoded) buf = querystring.unescape(buf);
       out.push(buf);
 
       // If `buf` is the key, add an empty value.
-      if (!seenSep)
-        out.push('');
+      if (!seenSep) out.push("");
 
       seenSep = false;
-      buf = '';
+      buf = "";
       encoded = false;
       encodeCheck = 0;
       lastPos = pairStart = i + 1;
@@ -1001,14 +936,12 @@ function parseParams(qs) {
     // Try matching key/value separator (e.g. '=') if we haven't already
     if (!seenSep && code === CHAR_EQUAL) {
       // Key/value separator match!
-      if (lastPos < i)
-        buf += qs.slice(lastPos, i);
-      if (encoded)
-        buf = querystring.unescape(buf);
+      if (lastPos < i) buf += qs.slice(lastPos, i);
+      if (encoded) buf = querystring.unescape(buf);
       out.push(buf);
 
       seenSep = true;
-      buf = '';
+      buf = "";
       encoded = false;
       encodeCheck = 0;
       lastPos = i + 1;
@@ -1017,9 +950,8 @@ function parseParams(qs) {
 
     // Handle + and percent decoding.
     if (code === CHAR_PLUS) {
-      if (lastPos < i)
-        buf += StringPrototypeSlice(qs, lastPos, i);
-      buf += ' ';
+      if (lastPos < i) buf += StringPrototypeSlice(qs, lastPos, i);
+      buf += " ";
       lastPos = i + 1;
     } else if (!encoded) {
       // Try to match an (valid) encoded byte (once) to minimize unnecessary
@@ -1041,18 +973,14 @@ function parseParams(qs) {
   // Deal with any leftover key or value data
 
   // There is a trailing &. No more processing is needed.
-  if (pairStart === i)
-    return out;
+  if (pairStart === i) return out;
 
-  if (lastPos < i)
-    buf += StringPrototypeSlice(qs, lastPos, i);
-  if (encoded)
-    buf = querystring.unescape(buf);
+  if (lastPos < i) buf += StringPrototypeSlice(qs, lastPos, i);
+  if (encoded) buf = querystring.unescape(buf);
   ArrayPrototypePush(out, buf);
 
   // If `buf` is the key, add an empty value.
-  if (!seenSep)
-    ArrayPrototypePush(out, '');
+  if (!seenSep) ArrayPrototypePush(out, "");
 
   return out;
 }
@@ -1060,29 +988,148 @@ function parseParams(qs) {
 // Adapted from querystring's implementation.
 // Ref: https://url.spec.whatwg.org/#concept-urlencoded-byte-serializer
 const noEscape = new Int8Array([
-/*
+  /*
   0, 1, 2, 3, 4, 5, 6, 7, 8, 9, A, B, C, D, E, F
 */
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x00 - 0x0F
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x10 - 0x1F
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, // 0x20 - 0x2F
-  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, // 0x30 - 0x3F
-  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 0x40 - 0x4F
-  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, // 0x50 - 0x5F
-  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 0x60 - 0x6F
-  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,  // 0x70 - 0x7F
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0, // 0x00 - 0x0F
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0, // 0x10 - 0x1F
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  1,
+  0,
+  0,
+  1,
+  1,
+  0, // 0x20 - 0x2F
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0, // 0x30 - 0x3F
+  0,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1, // 0x40 - 0x4F
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  0,
+  0,
+  0,
+  0,
+  1, // 0x50 - 0x5F
+  0,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1, // 0x60 - 0x6F
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  0,
+  0,
+  0,
+  0,
+  0, // 0x70 - 0x7F
 ]);
 
 // Special version of hexTable that uses `+` for U+0020 SPACE.
 const paramHexTable = hexTable.slice();
-paramHexTable[0x20] = '+';
+paramHexTable[0x20] = "+";
 
 // application/x-www-form-urlencoded serializer
 // Ref: https://url.spec.whatwg.org/#concept-urlencoded-serializer
 function serializeParams(array) {
   const len = array.length;
-  if (len === 0)
-    return '';
+  if (len === 0) return "";
 
   const firstEncodedParam = encodeStr(array[0], noEscape, paramHexTable);
   const firstEncodedValue = encodeStr(array[1], noEscape, paramHexTable);
@@ -1104,7 +1151,7 @@ function defineIDLClass(proto, classStr, obj) {
     writable: false,
     enumerable: false,
     configurable: true,
-    value: classStr
+    value: classStr,
   });
 
   // https://heycam.github.io/webidl/#es-operations
@@ -1113,7 +1160,7 @@ function defineIDLClass(proto, classStr, obj) {
       writable: true,
       enumerable: true,
       configurable: true,
-      value: obj[key]
+      value: obj[key],
     });
   }
   for (const key of ObjectGetOwnPropertySymbols(obj)) {
@@ -1121,7 +1168,7 @@ function defineIDLClass(proto, classStr, obj) {
       writable: true,
       enumerable: false,
       configurable: true,
-      value: obj[key]
+      value: obj[key],
     });
   }
 }
@@ -1132,10 +1179,8 @@ function merge(out, start, mid, end, lBuffer, rBuffer) {
   const sizeRight = end - mid;
   let l, r, o;
 
-  for (l = 0; l < sizeLeft; l++)
-    lBuffer[l] = out[start + l];
-  for (r = 0; r < sizeRight; r++)
-    rBuffer[r] = out[mid + r];
+  for (l = 0; l < sizeLeft; l++) lBuffer[l] = out[start + l];
+  for (r = 0; r < sizeRight; r++) rBuffer[r] = out[mid + r];
 
   l = 0;
   r = 0;
@@ -1149,10 +1194,8 @@ function merge(out, start, mid, end, lBuffer, rBuffer) {
       out[o++] = rBuffer[r++];
     }
   }
-  while (l < sizeLeft)
-    out[o++] = lBuffer[l++];
-  while (r < sizeRight)
-    out[o++] = rBuffer[r++];
+  while (l < sizeLeft) out[o++] = lBuffer[l++];
+  while (r < sizeRight) out[o++] = rBuffer[r++];
 }
 
 // https://heycam.github.io/webidl/#dfn-default-iterator-object
@@ -1161,7 +1204,7 @@ function createSearchParamsIterator(target, kind) {
   iterator[context] = {
     target,
     kind,
-    index: 0
+    index: 0,
   };
   return iterator;
 }
@@ -1169,24 +1212,22 @@ function createSearchParamsIterator(target, kind) {
 // https://heycam.github.io/webidl/#dfn-iterator-prototype-object
 const URLSearchParamsIteratorPrototype = ObjectCreate(IteratorPrototype);
 
-defineIDLClass(URLSearchParamsIteratorPrototype, 'URLSearchParams Iterator', {
+defineIDLClass(URLSearchParamsIteratorPrototype, "URLSearchParams Iterator", {
   next() {
-    if (!this ||
-        ObjectGetPrototypeOf(this) !== URLSearchParamsIteratorPrototype) {
-      throw new ERR_INVALID_THIS('URLSearchParamsIterator');
+    if (
+      !this ||
+      ObjectGetPrototypeOf(this) !== URLSearchParamsIteratorPrototype
+    ) {
+      throw new ERR_INVALID_THIS("URLSearchParamsIterator");
     }
 
-    const {
-      target,
-      kind,
-      index
-    } = this[context];
+    const { target, kind, index } = this[context];
     const values = target[searchParams];
     const len = values.length;
     if (index >= len) {
       return {
         value: undefined,
-        done: true
+        done: true,
       };
     }
 
@@ -1195,9 +1236,9 @@ defineIDLClass(URLSearchParamsIteratorPrototype, 'URLSearchParams Iterator', {
     this[context].index = index + 2;
 
     let result;
-    if (kind === 'key') {
+    if (kind === "key") {
       result = name;
-    } else if (kind === 'value') {
+    } else if (kind === "value") {
       result = value;
     } else {
       result = [name, value];
@@ -1205,67 +1246,61 @@ defineIDLClass(URLSearchParamsIteratorPrototype, 'URLSearchParams Iterator', {
 
     return {
       value: result,
-      done: false
+      done: false,
     };
   },
   [inspect.custom](recurseTimes, ctx) {
     if (this == null || this[context] == null || this[context].target == null)
-      throw new ERR_INVALID_THIS('URLSearchParamsIterator');
+      throw new ERR_INVALID_THIS("URLSearchParamsIterator");
 
-    if (typeof recurseTimes === 'number' && recurseTimes < 0)
-      return ctx.stylize('[Object]', 'special');
+    if (typeof recurseTimes === "number" && recurseTimes < 0)
+      return ctx.stylize("[Object]", "special");
 
     const innerOpts = { ...ctx };
     if (recurseTimes !== null) {
       innerOpts.depth = recurseTimes - 1;
     }
-    const {
-      target,
-      kind,
-      index
-    } = this[context];
+    const { target, kind, index } = this[context];
     const output = ArrayPrototypeReduce(
       ArrayPrototypeSlice(target[searchParams], index),
       (prev, cur, i) => {
         const key = i % 2 === 0;
-        if (kind === 'key' && key) {
+        if (kind === "key" && key) {
           ArrayPrototypePush(prev, cur);
-        } else if (kind === 'value' && !key) {
+        } else if (kind === "value" && !key) {
           ArrayPrototypePush(prev, cur);
-        } else if (kind === 'key+value' && !key) {
+        } else if (kind === "key+value" && !key) {
           ArrayPrototypePush(prev, [target[searchParams][index + i - 1], cur]);
         }
         return prev;
       },
       []
     );
-    const breakLn = inspect(output, innerOpts).includes('\n');
+    const breakLn = inspect(output, innerOpts).includes("\n");
     const outputStrs = ArrayPrototypeMap(output, (p) => inspect(p, innerOpts));
     let outputStr;
     if (breakLn) {
-      outputStr = `\n  ${ArrayPrototypeJoin(outputStrs, ',\n  ')}`;
+      outputStr = `\n  ${ArrayPrototypeJoin(outputStrs, ",\n  ")}`;
     } else {
-      outputStr = ` ${ArrayPrototypeJoin(outputStrs, ', ')}`;
+      outputStr = ` ${ArrayPrototypeJoin(outputStrs, ", ")}`;
     }
     return `${this[SymbolToStringTag]} {${outputStr} }`;
-  }
+  },
 });
 
 function domainToASCII(domain) {
-  if (arguments.length < 1)
-    throw new ERR_MISSING_ARGS('domain');
+  if (arguments.length < 1) throw new ERR_MISSING_ARGS("domain");
 
   // toUSVString is not needed.
-  return Buffer.from(domain).toString('ascii')
+  return Buffer.from(domain).toString("ascii");
 }
 
 function domainToUnicode(domain) {
-  if (arguments.length < 1)
-    throw new ERR_MISSING_ARGS('domain');
+  if (arguments.length < 1) throw new ERR_MISSING_ARGS("domain");
 
   // toUSVString is not needed.
-  console.log(domain)
-  return Buffer.from(domain).toString('utf-8')
+  console.log(domain);
+  return Buffer.from(domain).toString("utf-8");
 }
 
 // Utility function that converts a URL object into an ordinary
@@ -1274,17 +1309,18 @@ function domainToUnicode(domain) {
 function urlToHttpOptions(url) {
   const options = {
     protocol: url.protocol,
-    hostname: typeof url.hostname === 'string' &&
-              StringPrototypeStartsWith(url.hostname, '[') ?
-      StringPrototypeSlice(url.hostname, 1, -1) :
-      url.hostname,
+    hostname:
+      typeof url.hostname === "string" &&
+      StringPrototypeStartsWith(url.hostname, "[")
+        ? StringPrototypeSlice(url.hostname, 1, -1)
+        : url.hostname,
     hash: url.hash,
     search: url.search,
     pathname: url.pathname,
-    path: `${url.pathname || ''}${url.search || ''}`,
-    href: url.href
+    path: `${url.pathname || ""}${url.search || ""}`,
+    href: url.href,
   };
-  if (url.port !== '') {
+  if (url.port !== "") {
     options.port = Number(url.port);
   }
   if (url.username || url.password) {
@@ -1299,19 +1335,22 @@ function getPathFromURLWin32(url) {
   const hostname = url.hostname;
   let pathname = url.pathname;
   for (let n = 0; n < pathname.length; n++) {
-    if (pathname[n] === '%') {
+    if (pathname[n] === "%") {
       const third = pathname.codePointAt(n + 2) | 0x20;
-      if ((pathname[n + 1] === '2' && third === 102) || // 2f 2F /
-          (pathname[n + 1] === '5' && third === 99)) {  // 5c 5C \
+      if (
+        (pathname[n + 1] === "2" && third === 102) || // 2f 2F /
+        (pathname[n + 1] === "5" && third === 99)
+      ) {
+        // 5c 5C \
         throw new ERR_INVALID_FILE_URL_PATH(
-          'must not include encoded \\ or / characters'
+          "must not include encoded \\ or / characters"
         );
       }
     }
   }
-  pathname = pathname.replace(forwardSlashRegEx, '\\');
+  pathname = pathname.replace(forwardSlashRegEx, "\\");
   pathname = decodeURIComponent(pathname);
-  if (hostname !== '') {
+  if (hostname !== "") {
     // If hostname is set, then we have a UNC path
     // Pass the hostname through domainToUnicode just in case
     // it is an IDN using punycode encoding. We do not need to worry
@@ -1323,24 +1362,27 @@ function getPathFromURLWin32(url) {
   // Otherwise, it's a local path that requires a drive letter
   const letter = pathname.codePointAt(1) | 0x20;
   const sep = pathname[2];
-  if (letter < CHAR_LOWERCASE_A || letter > CHAR_LOWERCASE_Z ||   // a..z A..Z
-      (sep !== ':')) {
-    throw new ERR_INVALID_FILE_URL_PATH('must be absolute');
+  if (
+    letter < CHAR_LOWERCASE_A ||
+    letter > CHAR_LOWERCASE_Z || // a..z A..Z
+    sep !== ":"
+  ) {
+    throw new ERR_INVALID_FILE_URL_PATH("must be absolute");
   }
   return pathname.slice(1);
 }
 
 function getPathFromURLPosix(url) {
-  if (url.hostname !== '') {
+  if (url.hostname !== "") {
     throw new ERR_INVALID_FILE_URL_HOST(platform);
   }
   const pathname = url.pathname;
   for (let n = 0; n < pathname.length; n++) {
-    if (pathname[n] === '%') {
+    if (pathname[n] === "%") {
       const third = pathname.codePointAt(n + 2) | 0x20;
-      if (pathname[n + 1] === '2' && third === 102) {
+      if (pathname[n + 1] === "2" && third === 102) {
         throw new ERR_INVALID_FILE_URL_PATH(
-          'must not include encoded / characters'
+          "must not include encoded / characters"
         );
       }
     }
@@ -1349,12 +1391,10 @@ function getPathFromURLPosix(url) {
 }
 
 function fileURLToPath(path) {
-  if (typeof path === 'string')
-    path = new URL(path);
+  if (typeof path === "string") path = new URL(path);
   else if (!isURLInstance(path))
-    throw new ERR_INVALID_ARG_TYPE('path', ['string', 'URL'], path);
-  if (path.protocol !== 'file:')
-    throw new ERR_INVALID_URL_SCHEME('file');
+    throw new ERR_INVALID_ARG_TYPE("path", ["string", "URL"], path);
+  if (path.protocol !== "file:") throw new ERR_INVALID_URL_SCHEME("file");
   return isWindows ? getPathFromURLWin32(path) : getPathFromURLPosix(path);
 }
 
@@ -1376,52 +1416,57 @@ const carriageReturnRegEx = /\r/g;
 const tabRegEx = /\t/g;
 
 function encodePathChars(filepath) {
-  if (StringPrototypeIncludes(filepath, '%'))
-    filepath = StringPrototypeReplace(filepath, percentRegEx, '%25');
+  if (StringPrototypeIncludes(filepath, "%"))
+    filepath = StringPrototypeReplace(filepath, percentRegEx, "%25");
   // In posix, backslash is a valid character in paths:
-  if (!isWindows && StringPrototypeIncludes(filepath, '\\'))
-    filepath = StringPrototypeReplace(filepath, backslashRegEx, '%5C');
-  if (StringPrototypeIncludes(filepath, '\n'))
-    filepath = StringPrototypeReplace(filepath, newlineRegEx, '%0A');
-  if (StringPrototypeIncludes(filepath, '\r'))
-    filepath = StringPrototypeReplace(filepath, carriageReturnRegEx, '%0D');
-  if (StringPrototypeIncludes(filepath, '\t'))
-    filepath = StringPrototypeReplace(filepath, tabRegEx, '%09');
+  if (!isWindows && StringPrototypeIncludes(filepath, "\\"))
+    filepath = StringPrototypeReplace(filepath, backslashRegEx, "%5C");
+  if (StringPrototypeIncludes(filepath, "\n"))
+    filepath = StringPrototypeReplace(filepath, newlineRegEx, "%0A");
+  if (StringPrototypeIncludes(filepath, "\r"))
+    filepath = StringPrototypeReplace(filepath, carriageReturnRegEx, "%0D");
+  if (StringPrototypeIncludes(filepath, "\t"))
+    filepath = StringPrototypeReplace(filepath, tabRegEx, "%09");
   return filepath;
 }
 
 function pathToFileURL(filepath) {
-  const outURL = new URL('file://');
-  if (isWindows && StringPrototypeStartsWith(filepath, '\\\\')) {
+  const outURL = new URL("file://");
+  if (isWindows && StringPrototypeStartsWith(filepath, "\\\\")) {
     // UNC path format: \\server\share\resource
-    const paths = StringPrototypeSplit(filepath, '\\');
+    const paths = StringPrototypeSplit(filepath, "\\");
     if (paths.length <= 3) {
       throw new ERR_INVALID_ARG_VALUE(
-        'filepath',
+        "filepath",
         filepath,
-        'Missing UNC resource path'
+        "Missing UNC resource path"
       );
     }
     const hostname = paths[2];
     if (hostname.length === 0) {
       throw new ERR_INVALID_ARG_VALUE(
-        'filepath',
+        "filepath",
         filepath,
-        'Empty UNC servername'
+        "Empty UNC servername"
       );
     }
     outURL.hostname = domainToASCII(hostname);
     outURL.pathname = encodePathChars(
-      ArrayPrototypeJoin(ArrayPrototypeSlice(paths, 3), '/'));
+      ArrayPrototypeJoin(ArrayPrototypeSlice(paths, 3), "/")
+    );
   } else {
     let resolved = path.resolve(filepath);
     // path.resolve strips trailing slashes so we must add them back
-    const filePathLast = StringPrototypeCharCodeAt(filepath,
-                                                   filepath.length - 1);
-    if ((filePathLast === CHAR_FORWARD_SLASH ||
-         (isWindows && filePathLast === CHAR_BACKWARD_SLASH)) &&
-        resolved[resolved.length - 1] !== path.sep)
-      resolved += '/';
+    const filePathLast = StringPrototypeCharCodeAt(
+      filepath,
+      filepath.length - 1
+    );
+    if (
+      (filePathLast === CHAR_FORWARD_SLASH ||
+        (isWindows && filePathLast === CHAR_BACKWARD_SLASH)) &&
+      resolved[resolved.length - 1] !== path.sep
+    )
+      resolved += "/";
     outURL.pathname = encodePathChars(resolved);
   }
   return outURL;
@@ -1432,18 +1477,26 @@ function isURLInstance(fileURLOrPath) {
 }
 
 function toPathIfFileURL(fileURLOrPath) {
-  if (!isURLInstance(fileURLOrPath))
-    return fileURLOrPath;
+  if (!isURLInstance(fileURLOrPath)) return fileURLOrPath;
   return fileURLToPath(fileURLOrPath);
 }
 
-function constructUrl(flags, protocol, username, password,
-                      host, port, path, query, fragment) {
+function constructUrl(
+  flags,
+  protocol,
+  username,
+  password,
+  host,
+  port,
+  path,
+  query,
+  fragment
+) {
   const ctx = new URLContext();
   ctx.flags = flags;
   ctx.scheme = protocol;
-  ctx.username = (flags & URL_FLAGS_HAS_USERNAME) !== 0 ? username : '';
-  ctx.password = (flags & URL_FLAGS_HAS_PASSWORD) !== 0 ? password : '';
+  ctx.username = (flags & URL_FLAGS_HAS_USERNAME) !== 0 ? username : "";
+  ctx.password = (flags & URL_FLAGS_HAS_PASSWORD) !== 0 ? password : "";
   ctx.port = port;
   ctx.path = (flags & URL_FLAGS_HAS_PATH) !== 0 ? path : [];
   ctx.query = query;
@@ -1476,5 +1529,5 @@ export {
   urlToHttpOptions,
   formatSymbol,
   searchParamsSymbol,
-  encodeStr
+  encodeStr,
 };

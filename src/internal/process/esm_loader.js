@@ -32,11 +32,11 @@ const importModuleDynamicallyCallback = async function(wrap, specifier) {
 
 
 import { emitExperimentalWarning } from "../util.js";
-import * as AltLoader from "esbuild-esm-loader"
+// import * as AltLoader from "esbuild-esm-loader"
 
 let ESMLoader = new Loader();
-ESMLoader.hook(AltLoader);
-ESMLoader.runGlobalPreloadCode();
+// ESMLoader.hook(AltLoader);
+// ESMLoader.runGlobalPreloadCode();
 
 async function initializeLoader() {
   //import { getOptionValue } from "internal/options";

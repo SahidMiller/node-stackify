@@ -1,6 +1,6 @@
 'use strict';
 
-const {
+import {
   ArrayFrom,
   ArrayIsArray,
   ArrayPrototypePush,
@@ -25,7 +25,7 @@ const {
   StringPrototypeToUpperCase,
   Symbol,
   SymbolFor,
-} = require("@darkwolf/primordials");
+} from "@darkwolf/primordials";
 
 import {
   hideStackFrames,

@@ -1,9 +1,10 @@
 'use strict';
 
-const { SafeMap } = require("@darkwolf/primordials");
+import { SafeMap } from "@darkwolf/primordials";
 // const { internalModuleReadJSON } = internalBinding('fs');
-const { pathToFileURL } = require('url');
-const { toNamespacedPath } = require('path');
+import { pathToFileURL } from "../url.js";
+import { toNamespacedPath } from "path";
+// import { getOptionValue } from "internal/options";
 
 const cache = new SafeMap();
 
@@ -22,7 +23,6 @@ function read(jsonPath) {
     toNamespacedPath(jsonPath)
   );
   const result = { string, containsKeys };
-  const { getOptionValue } = require('internal/options');
   if (string !== undefined) {
     if (manifest === undefined) {
       manifest = getOptionValue('--experimental-policy') ?

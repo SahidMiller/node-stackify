@@ -43,7 +43,7 @@
 // passed by node::RunBootstrapping()
 /* global process, getLinkedBinding, getInternalBinding, primordials */
 
-const {
+import {
   ArrayPrototypeMap,
   ArrayPrototypePush,
   ArrayPrototypeSlice,
@@ -58,7 +58,7 @@ const {
   String,
   StringPrototypeStartsWith,
   TypeError,
-} = require("@darkwolf/primordials");
+} from "@darkwolf/primordials"
 
 // Set up process.moduleLoadList.
 const moduleLoadList = [];

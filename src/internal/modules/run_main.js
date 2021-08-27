@@ -3,9 +3,9 @@
 import {
   StringPrototypeEndsWith,
 } from "@darkwolf/primordials";
-import { Module, toRealPath, readPackageScope } from '../../loader.js';
+import { Module, toRealPath, readPackageScope } from './cjs/loader.js';
 // const { getOptionValue } = require('internal/options');
-const path = require('path');
+import path from 'path';
 
 function resolveMainPath(main) {
   // Note extension resolution for the main entry point can be deprecated in a

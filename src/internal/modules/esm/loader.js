@@ -1,7 +1,7 @@
 'use strict';
 
 // This is needed to avoid cycles in esm/resolve <-> cjs/loader
-import "../../../loader.js";
+import "../cjs/loader.js";
 
 import {
   FunctionPrototypeBind,

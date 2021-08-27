@@ -52,7 +52,7 @@ const {
   ERR_UNSUPPORTED_DIR_IMPORT,
   ERR_UNSUPPORTED_ESM_URL_SCHEME,
 } = codes
-import { Module as CJSModule } from "../../../loader.js";
+import { Module as CJSModule } from "../cjs/loader.js";
 
 import packageJsonReader from "../package_json_reader.js";
 const userConditions = [] //getOptionValue('--conditions');

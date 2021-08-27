@@ -57,7 +57,7 @@ import path from "path";
 import fs from "fs";
 import { Interface } from "./readline.js";
 import { commonPrefix } from "./internal/readline/utils.js";
-import { Console } from "./internal/console.js";
+import { Console } from "./internal/console/index.js";
 
 //const CJSModule = require("internal/modules/cjs/loader").Module;
 // let _builtinLibs = Array.prototype.filter.call(
@@ -79,7 +79,7 @@ import {
   codes,
   isErrorStackTraceLimitWritable,
   overrideStackTrace,
-} from "./internal/errors";
+} from "./internal/errors.js";
 const {
   ERR_CANNOT_WATCH_SIGINT,
   ERR_INVALID_REPL_EVAL_CONFIG,
@@ -88,18 +88,11 @@ const {
 } = codes;
 //const { sendInspectorCommand } = require("internal/util/inspector");
 //const { getOptionValue } = require("internal/options");
-const { validateFunction, validateObject } = require("./internal/validators");
+import { validateFunction, validateObject } from "./internal/validators.js";
 
 const experimentalREPLAwait = false; // getOptionValue("--experimental-repl-await");
 const pendingDeprecation = false; // getOptionValue("--pending-deprecation");
-const {
-  REPL_MODE_SLOPPY,
-  REPL_MODE_STRICT,
-  isRecoverableError,
-  kStandaloneREPL,
-  setupPreview,
-  setupReverseSearch,
-} = require("./internal/repl/utils");
+import { REPL_MODE_SLOPPY, REPL_MODE_STRICT, isRecoverableError, kStandaloneREPL, setupPreview, setupReverseSearch } from "./internal/repl/utils.js";
 // const {
 //   getOwnNonIndexProperties,
 //   propertyFilter: { ALL_PROPERTIES, SKIP_SYMBOLS },
@@ -107,7 +100,7 @@ const {
 // const { startSigintWatchdog, stopSigintWatchdog } =
 //   internalBinding("contextify");
 
-const history = require("./internal/repl/history");
+import history from "./internal/repl/history.js";
 // const {
 //   extensionFormatMap,
 //   legacyExtensionFormatMap,
@@ -127,7 +120,7 @@ const globalBuiltins = new Set(
   vm.runInNewContext("Object.getOwnPropertyNames(globalThis)")
 );
 
-const parentModule = module;
+// const parentModule = module;
 const domainSet = new WeakSet();
 
 const kBufferedCommandSymbol = Symbol("bufferedCommand");
@@ -135,16 +128,16 @@ const kContextId = Symbol("contextId");
 
 let addedNewListener = false;
 
-try {
-  // Hack for require.resolve("./relative") to work properly.
-  module.filename = path.resolve("repl");
-} catch {
-  // path.resolve('repl') fails when the current working directory has been
-  // deleted.  Fall back to the directory name of the (absolute) executable
-  // path.  It's not really correct but what are the alternatives?
-  const dirname = path.dirname(process.execPath);
-  module.filename = path.resolve(dirname, "repl");
-}
+// try {
+//   // Hack for require.resolve("./relative") to work properly.
+//   module.filename = path.resolve("repl");
+// } catch {
+//   // path.resolve('repl') fails when the current working directory has been
+//   // deleted.  Fall back to the directory name of the (absolute) executable
+//   // path.  It's not really correct but what are the alternatives?
+//   const dirname = path.dirname(process.execPath);
+//   module.filename = path.resolve(dirname, "repl");
+// }
 
 // Hack for repl require to work properly with node_modules folders
 //module.paths = CJSModule._nodeModulePaths(module.filename);
@@ -154,6 +147,8 @@ try {
 // `eyes.js`.
 const writer = (obj) => inspect(obj, writer.options);
 writer.options = { ...inspect.defaultOptions, showProxy: true };
+
+import { pathToFileURL } from "./internal/url.js";
 
 function REPLServer(
   prompt,
@@ -265,7 +260,7 @@ function REPLServer(
   this._domain = options.domain || domain.create();
   this.useGlobal = !!useGlobal;
   this.ignoreUndefined = !!ignoreUndefined;
-  this.replMode = replMode || module.exports.REPL_MODE_SLOPPY;
+  this.replMode = replMode //|| module.exports.REPL_MODE_SLOPPY;
   this.underscoreAssigned = false;
   this.last = undefined;
   this.underscoreErrAssigned = false;
@@ -284,7 +279,7 @@ function REPLServer(
   if (options[kStandaloneREPL]) {
     // It is possible to introspect the running REPL accessing this variable
     // from inside the REPL. This is useful for anyone working on the REPL.
-    module.exports.repl = this;
+    //module.exports.repl = this;
   } else if (!addedNewListener) {
     // Add this listener only once and use a WeakSet that contains the REPLs
     // domains. Otherwise we'd have to add a single listener to each REPL
@@ -403,7 +398,6 @@ function REPLServer(
     if (err === null) {
       let parentURL;
       try {
-        const { pathToFileURL } = require("url");
         // Adding `/repl` prevents dynamic imports from loading relative
         // to the parent of `process.cwd()`.
         parentURL = pathToFileURL(path.join(process.cwd(), "repl")).href;
@@ -411,7 +405,7 @@ function REPLServer(
       while (true) {
         try {
           if (
-            self.replMode === module.exports.REPL_MODE_STRICT &&
+            self.replMode === REPL_MODE_STRICT &&
             !RegExp.prototype.test.call(/^\s*$/, code)
           ) {
             // "void 0" keeps the repl from returning "use strict" as the result
@@ -615,7 +609,7 @@ function REPLServer(
                 `SyntaxError: ${e.message}\n`
               );
             }
-          } else if (self.replMode === module.exports.REPL_MODE_STRICT) {
+          } else if (self.replMode === REPL_MODE_STRICT) {
             e.stack = String.prototype.replace.call(
               e.stack,
               /(\s+at\s+REPL\d+:)(\d+)/,
@@ -1267,7 +1261,7 @@ function complete(line, callback) {
     } else if (RegExp.prototype.test.call(/^\.\.?\//, completeOn)) {
       paths = [process.cwd()];
     } else {
-      paths = Array.prototype.concat.call(module.paths, CJSModule.globalPaths);
+      //paths = Array.prototype.concat.call(module.paths, CJSModule.globalPaths);
     }
 
     Array.prototype.forEach.call(paths, (dir) => {
@@ -1351,7 +1345,7 @@ function complete(line, callback) {
     } else if (RegExp.prototype.test.call(/^\.\.?\//, completeOn)) {
       paths = [process.cwd()];
     } else {
-      paths = Array.prototype.slice.call(module.paths);
+      // paths = Array.prototype.slice.call(module.paths);
     }
 
     Array.prototype.forEach.call(paths, (dir) => {
@@ -1824,6 +1818,7 @@ function Recoverable(err) {
 Object.setPrototypeOf(Recoverable.prototype, SyntaxError.prototype);
 Object.setPrototypeOf(Recoverable, SyntaxError);
 
+// const builtinModules = _builtinLibs
 export {
   start,
   writer,
@@ -1831,30 +1826,6 @@ export {
   REPL_MODE_SLOPPY,
   REPL_MODE_STRICT,
   Recoverable,
+  // builtinModules
 };
 
-Object.defineProperty(module.exports, "builtinModules", {
-  get: () => _builtinLibs,
-  set: (val) => (_builtinLibs = val),
-  enumerable: true,
-  configurable: true,
-});
-
-Object.defineProperty(module.exports, "_builtinLibs", {
-  get: pendingDeprecation
-    ? deprecate(
-        () => _builtinLibs,
-        "repl._builtinLibs is deprecated. Check module.builtinModules instead",
-        "DEP0142"
-      )
-    : () => _builtinLibs,
-  set: pendingDeprecation
-    ? deprecate(
-        (val) => (_builtinLibs = val),
-        "repl._builtinLibs is deprecated. Check module.builtinModules instead",
-        "DEP0142"
-      )
-    : (val) => (_builtinLibs = val),
-  enumerable: false,
-  configurable: true,
-});

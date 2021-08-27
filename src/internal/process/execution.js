@@ -1,8 +1,8 @@
 'use strict';
 
-const {
+import {
   globalThis,
-} = require("@darkwolf/primordials");;
+} from "@darkwolf/primordials";
 
 import path from "path";
 
@@ -54,7 +54,7 @@ function evalModule(source, print) {
   }));
 }
 
-import { Module as CJSModule } from "../../loader.js";
+import { Module as CJSModule } from "../modules/cjs/loader.js";
 import { kVmBreakFirstLineSymbol } from "../util.js";
 import { pathToFileURL } from "../url.js";
 

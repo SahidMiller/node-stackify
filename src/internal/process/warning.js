@@ -1,12 +1,13 @@
 'use strict';
 
-const {
+import {
   ArrayIsArray,
   Error,
   ErrorPrototypeToString,
-  ErrorCaptureStackTrace,
   String,
-} = require("@darkwolf/primordials");;
+} from "@darkwolf/primordials";
+const uncurryThis = Function.bind.bind(Function.call)
+const ErrorCaptureStackTrace = uncurryThis(Error.prototype.captureStackTrace)
 
 import assert from "assert";
 import { codes, isErrorStackTraceLimitWritable } from "../errors.js";

@@ -1289,6 +1289,8 @@ Interface.prototype._ttyWrite = function (s, key) {
   }
 };
 
+import { Readable as ReadableStream } from "stream";
+
 /**
  * Creates an `AsyncIterator` object that iterates through
  * each line in the input stream as a string.
@@ -1296,10 +1298,7 @@ Interface.prototype._ttyWrite = function (s, key) {
  */
 Interface.prototype[Symbol.asyncIterator] = function () {
   if (this[kLineObjectStream] === undefined) {
-    if (Readable === undefined) {
-      Readable = require("stream").Readable;
-    }
-    const readable = new Readable({
+    const readable = new ReadableStream({
       objectMode: true,
       read: () => {
         this.resume();

@@ -1,6 +1,6 @@
 'use strict';
 
-const {
+import {
   Array,
   ArrayIsArray,
   ArrayPrototypeFilter,
@@ -77,7 +77,7 @@ const {
   Uint8Array,
   globalThis,
   uncurryThis,
-} = require("@darkwolf/primordials");
+} from "@darkwolf/primordials";
 
 // const {
 //   getOwnNonIndexProperties,

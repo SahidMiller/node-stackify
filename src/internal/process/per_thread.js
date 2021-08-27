@@ -4,7 +4,7 @@
 // run when setting up each thread, including the main
 // thread and the worker threads.
 
-const {
+import {
   ArrayPrototypeEvery,
   ArrayPrototypeForEach,
   ArrayPrototypeIncludes,
@@ -28,7 +28,7 @@ const {
   Symbol,
   SymbolIterator,
   Uint32Array,
-} = require("@darkwolf/primordials");;
+} from "@darkwolf/primordials";
 
 const {
   errnoException,

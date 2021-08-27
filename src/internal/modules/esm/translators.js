@@ -28,7 +28,7 @@ import { types } from "util"
 import { readFileSync } from "fs";
 import { extname, isAbsolute } from "path";
 import { stripBOM, loadNativeModule } from "../cjs/helpers.js";
-import { Module as CJSModule, cjsParseCache, Module } from "../../../loader.js";
+import { Module as CJSModule, cjsParseCache, Module } from "../cjs/loader.js";
 import { defaultGetSource } from "./get_source.js";
 import { defaultTransformSource } from "./transform_source.js";
 import createDynamicModule from "./create_dynamic_module.js";
@@ -127,9 +127,9 @@ function initializeImportMeta(meta, { url }) {
   meta.url = url;
 }
 
-import { transform, default as babel } from "@babel/standalone"
+// import { transform, default as babel } from "@babel/standalone"
 import * as esm from "../../process/esm_loader.js"
-import depGraph from "es-dependency-graph"
+// import depGraph from "es-dependency-graph"
 //import { ESMLoader as AltLoader } from 'esm-loader/loader.mjs'
 
 // Strategy for loading a standard JavaScript module.

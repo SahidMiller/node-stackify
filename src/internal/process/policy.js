@@ -1,10 +1,10 @@
 'use strict';
 
-const {
+import {
   JSONParse,
   ObjectFreeze,
   ReflectSetPrototypeOf,
-} = require("@darkwolf/primordials");;
+} from "@darkwolf/primordials";
 
 const {
   ERR_MANIFEST_TDZ,

@@ -43,3 +43,4 @@ globalConsole[kBindProperties](true, "auto");
 globalConsole.Console = Console;
 
 export default globalConsole;
+export { Console }
