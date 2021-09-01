@@ -45,7 +45,7 @@ const kDecoratedPrivateSymbolIndex = 1;
 //   decorated_private_symbol: kDecoratedPrivateSymbolIndex,
 //   sleep: _sleep
 // } = internalBinding('util');
-import { types, inspect } from "../../node_modules/util/util.js";
+import { types, inspect } from "util_browserify";
 const { isNativeError } = types;
 
 const noCrypto = !process.versions.openssl;

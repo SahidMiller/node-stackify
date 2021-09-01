@@ -1,5 +1,5 @@
 import hrtime from "browser-process-hrtime";
-import process from "../node_modules/process/browser.js";
+import process from "process_browserify";
 
 import constants from "./constants.js";
 

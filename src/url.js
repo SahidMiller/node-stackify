@@ -14,7 +14,7 @@ import {
   resolveObject,
   format,
   Url,
-} from "../node_modules/url/url.js";
+} from "url_browserify";
 
 export {
   // Original API

@@ -64,8 +64,10 @@ const excludeObjectKeys = (object, excludeKeys) =>
   worker_threads: false,
 
   "util_browserify": require.resolve('util/'),
+  "url_browserify": require.resolve('url/'),
   "string_decoder_browserify": require.resolve('string_decoder/'),
   "punycode_browserify": require.resolve('punycode/'),
+  "process_browserify": require.resolve('process/browser'),
   "events_browserify": require.resolve('events/'),
   "buffer_browserify": require.resolve('buffer/'),
 };
