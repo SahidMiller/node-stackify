@@ -1,20 +1,21 @@
 {
   "name": "node-stackify",
-  "version": "0.3.2",
-  "description": "Tessreact is a fork of Tess and ReactIDE components",
+  "version": "0.0.3",
+  "description": "Native nodejs modules for the browser. Includes a webpack plugin for shimming.",
   "keywords": [
-    "terminal",
     "nodejs",
-    "bash",
-    "shell",
-    "xtermjs",
-    "node-pty",
-    "powershell",
-    "ide",
-    "react",
+    "module",
     "readline",
     "repl",
-    "cli"
+    "cli",
+    "fs",
+    "virtualfs",
+    "libp2p",
+    "network-stackify",
+    "http",
+    "https",
+    "net",
+    "webpack"
   ],
   "main": "./index.js",
   "type": "module",
@@ -87,5 +88,13 @@
     "virtualfs": "SahidMiller/js-virtualfs",
     "webpack": "^5.51.1",
     "whatwg-url": "^9.1.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SahidMiller/node-stackify.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SahidMiller/node-stackify/issues"
+  },
+  "homepage": "https://github.com/SahidMiller/node-stackify"
 }
