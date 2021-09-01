@@ -55,7 +55,10 @@
     "./util": "./src/reexports/util.js",
     "./vm": "./src/reexports/vm.js",
     "./zlib": "./src/reexports/zlib.js",
-    "./plugin": "./plugin.cjs",
+    "./plugin": {
+      "require": "./plugin.cjs",
+      "default": "./plugin.cjs"
+    },
     ".": "./index.js"
   },
   "author": {
