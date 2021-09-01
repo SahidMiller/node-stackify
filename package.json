@@ -18,21 +18,21 @@
   ],
   "main": "./index.js",
   "type": "module",
-  "imports": {
-    "fs": "./src/fs/index.js",
-    "url": "./src/url.js",
-    "util": "./src/util.js"
-  },
   "exports": {
     "./buffer": "./src/reexports/buffer.js",
     "./console": "./src/reexports/console.js",
     "./constants": "./src/constants.js",
     "./crypto": "./src/crypto.js",
     "./domain": "./src/reexports/domain.js",
-    "./events": "./src/reexports/events.js",
+    "./events": {
+      "import": "./src/reexports/events.js",
+      "require": "./src/reexports/events.cjs"
+    },
+    "./fs": "./src/fs.js",
     "./http": "./src/reexports/http.js",
     "./https": "./src/reexports/https.js",
     "./module": "./src/module.js",
+    "./net": "./src/reexports/net.js",
     "./os": "./src/os.js",
     "./path": "./src/reexports/path.js",
     "./punycode": "./src/reexports/punycode.js",
@@ -55,10 +55,7 @@
     "./util": "./src/reexports/util.js",
     "./vm": "./src/reexports/vm.js",
     "./zlib": "./src/reexports/zlib.js",
-    "./plugin": {
-      "require": "./plugin.cjs",
-      "default": "./plugin.js"
-    },
+    "./plugin": "./plugin.cjs",
     ".": "./index.js"
   },
   "author": {
@@ -71,7 +68,7 @@
     "@babel/register": "^7.15.3",
     "@babel/standalone": "^7.15.3",
     "@darkwolf/primordials": "^1.2.1",
-    "@network-stackify/stack": "^1.1.2",
+    "@network-stackify/stack": "SahidMiller/network-stackify#feat/es6",
     "browser-process-hrtime": "^1.0.0",
     "es-dependency-graph": "^0.1.6",
     "esbuild": "^0.12.22",
@@ -84,7 +81,7 @@
     "querystring": "^0.2.1",
     "url": "^0.11.0",
     "urlite": "^3.0.0",
-    "virtualfs": "^2.2.0",
+    "virtualfs": "SahidMiller/js-virtualfs",
     "webpack": "^5.51.1",
     "whatwg-url": "^9.1.0"
   }

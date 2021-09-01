@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 import {
   ArrayFrom,
@@ -32,15 +32,11 @@ import {
   codes,
   // uvErrmapGet,
   overrideStackTrace,
-} from './errors.js';
+} from "./errors.js";
 
-const {
-  ERR_INVALID_ARG_TYPE,
-  ERR_NO_CRYPTO,
-  ERR_UNKNOWN_SIGNAL
-} = codes
-const kArrowMessagePrivateSymbolIndex = 0
-const kDecoratedPrivateSymbolIndex = 1
+const { ERR_INVALID_ARG_TYPE, ERR_NO_CRYPTO, ERR_UNKNOWN_SIGNAL } = codes;
+const kArrowMessagePrivateSymbolIndex = 0;
+const kDecoratedPrivateSymbolIndex = 1;
 // const { signals } = internalBinding('constants').os;
 // const {
 //   getHiddenValue,
@@ -49,8 +45,8 @@ const kDecoratedPrivateSymbolIndex = 1
 //   decorated_private_symbol: kDecoratedPrivateSymbolIndex,
 //   sleep: _sleep
 // } = internalBinding('util');
-import { types } from "util"
-const { isNativeError } = types
+import { types, inspect } from "../../node_modules/util/util.js";
+const { isNativeError } = types;
 
 const noCrypto = !process.versions.openssl;
 
@@ -66,7 +62,7 @@ function lazyUv() {
 }
 
 function removeColors(str) {
-  return StringPrototypeReplace(str, colorRegExp, '');
+  return StringPrototypeReplace(str, colorRegExp, "");
 }
 
 function isError(e) {
@@ -88,8 +84,8 @@ function deprecate(fn, msg, code) {
     return fn;
   }
 
-  if (code !== undefined && typeof code !== 'string')
-    throw new ERR_INVALID_ARG_TYPE('code', 'string', code);
+  if (code !== undefined && typeof code !== "string")
+    throw new ERR_INVALID_ARG_TYPE("code", "string", code);
 
   let warned = false;
   function deprecated(...args) {
@@ -97,11 +93,11 @@ function deprecate(fn, msg, code) {
       warned = true;
       if (code !== undefined) {
         if (!codesWarned.has(code)) {
-          process.emitWarning(msg, 'DeprecationWarning', code, deprecated);
+          process.emitWarning(msg, "DeprecationWarning", code, deprecated);
           codesWarned.add(code);
         }
       } else {
-        process.emitWarning(msg, 'DeprecationWarning', deprecated);
+        process.emitWarning(msg, "DeprecationWarning", deprecated);
       }
     }
     if (new.target) {
@@ -122,10 +118,12 @@ function deprecate(fn, msg, code) {
   return deprecated;
 }
 
-const getHiddenValue = () => false
+const getHiddenValue = () => false;
 function decorateErrorStack(err) {
-  if (!(isError(err) && err.stack) ||
-      getHiddenValue(err, kDecoratedPrivateSymbolIndex) === true)
+  if (
+    !(isError(err) && err.stack) ||
+    getHiddenValue(err, kDecoratedPrivateSymbolIndex) === true
+  )
     return;
 
   const arrow = getHiddenValue(err, kArrowMessagePrivateSymbolIndex);
@@ -137,78 +135,86 @@ function decorateErrorStack(err) {
 }
 
 function assertCrypto() {
-  if (noCrypto)
-    throw new ERR_NO_CRYPTO();
+  if (noCrypto) throw new ERR_NO_CRYPTO();
 }
 
 // Return undefined if there is no match.
 // Move the "slow cases" to a separate function to make sure this function gets
 // inlined properly. That prioritizes the common case.
 function normalizeEncoding(enc) {
-  if (enc == null || enc === 'utf8' || enc === 'utf-8') return 'utf8';
+  if (enc == null || enc === "utf8" || enc === "utf-8") return "utf8";
   return slowCases(enc);
 }
 
 function slowCases(enc) {
   switch (enc.length) {
     case 4:
-      if (enc === 'UTF8') return 'utf8';
-      if (enc === 'ucs2' || enc === 'UCS2') return 'utf16le';
+      if (enc === "UTF8") return "utf8";
+      if (enc === "ucs2" || enc === "UCS2") return "utf16le";
       enc = `${enc}`.toLowerCase();
-      if (enc === 'utf8') return 'utf8';
-      if (enc === 'ucs2') return 'utf16le';
+      if (enc === "utf8") return "utf8";
+      if (enc === "ucs2") return "utf16le";
       break;
     case 3:
-      if (enc === 'hex' || enc === 'HEX' ||
-          `${enc}`.toLowerCase() === 'hex')
-        return 'hex';
+      if (enc === "hex" || enc === "HEX" || `${enc}`.toLowerCase() === "hex")
+        return "hex";
       break;
     case 5:
-      if (enc === 'ascii') return 'ascii';
-      if (enc === 'ucs-2') return 'utf16le';
-      if (enc === 'UTF-8') return 'utf8';
-      if (enc === 'ASCII') return 'ascii';
-      if (enc === 'UCS-2') return 'utf16le';
+      if (enc === "ascii") return "ascii";
+      if (enc === "ucs-2") return "utf16le";
+      if (enc === "UTF-8") return "utf8";
+      if (enc === "ASCII") return "ascii";
+      if (enc === "UCS-2") return "utf16le";
       enc = `${enc}`.toLowerCase();
-      if (enc === 'utf-8') return 'utf8';
-      if (enc === 'ascii') return 'ascii';
-      if (enc === 'ucs-2') return 'utf16le';
+      if (enc === "utf-8") return "utf8";
+      if (enc === "ascii") return "ascii";
+      if (enc === "ucs-2") return "utf16le";
       break;
     case 6:
-      if (enc === 'base64') return 'base64';
-      if (enc === 'latin1' || enc === 'binary') return 'latin1';
-      if (enc === 'BASE64') return 'base64';
-      if (enc === 'LATIN1' || enc === 'BINARY') return 'latin1';
+      if (enc === "base64") return "base64";
+      if (enc === "latin1" || enc === "binary") return "latin1";
+      if (enc === "BASE64") return "base64";
+      if (enc === "LATIN1" || enc === "BINARY") return "latin1";
       enc = `${enc}`.toLowerCase();
-      if (enc === 'base64') return 'base64';
-      if (enc === 'latin1' || enc === 'binary') return 'latin1';
+      if (enc === "base64") return "base64";
+      if (enc === "latin1" || enc === "binary") return "latin1";
       break;
     case 7:
-      if (enc === 'utf16le' || enc === 'UTF16LE' ||
-          `${enc}`.toLowerCase() === 'utf16le')
-        return 'utf16le';
+      if (
+        enc === "utf16le" ||
+        enc === "UTF16LE" ||
+        `${enc}`.toLowerCase() === "utf16le"
+      )
+        return "utf16le";
       break;
     case 8:
-      if (enc === 'utf-16le' || enc === 'UTF-16LE' ||
-        `${enc}`.toLowerCase() === 'utf-16le')
-        return 'utf16le';
+      if (
+        enc === "utf-16le" ||
+        enc === "UTF-16LE" ||
+        `${enc}`.toLowerCase() === "utf-16le"
+      )
+        return "utf16le";
       break;
     case 9:
-      if (enc === 'base64url' || enc === 'BASE64URL' ||
-          `${enc}`.toLowerCase() === 'base64url')
-        return 'base64url';
+      if (
+        enc === "base64url" ||
+        enc === "BASE64URL" ||
+        `${enc}`.toLowerCase() === "base64url"
+      )
+        return "base64url";
       break;
     default:
-      if (enc === '') return 'utf8';
+      if (enc === "") return "utf8";
   }
 }
 
 function emitExperimentalWarning(feature) {
   if (experimentalWarnings.has(feature)) return;
-  const msg = `${feature} is an experimental feature. This feature could ` +
-       'change at any time';
+  const msg =
+    `${feature} is an experimental feature. This feature could ` +
+    "change at any time";
   experimentalWarnings.add(feature);
-  process.emitWarning(msg, 'ExperimentalWarning');
+  process.emitWarning(msg, "ExperimentalWarning");
 }
 
 function filterDuplicateStrings(items, low) {
@@ -228,8 +234,7 @@ function filterDuplicateStrings(items, low) {
 function cachedResult(fn) {
   let result;
   return () => {
-    if (result === undefined)
-      result = fn();
+    if (result === undefined) result = fn();
     return ArrayPrototypeSlice(result);
   };
 }
@@ -247,7 +252,7 @@ function createClassWrapper(type) {
   // Mask the wrapper function name and length values
   ObjectDefineProperties(fn, {
     name: { value: type.name },
-    length: { value: type.length }
+    length: { value: type.length },
   });
   ObjectSetPrototypeOf(fn, type);
   fn.prototype = type.prototype;
@@ -256,8 +261,7 @@ function createClassWrapper(type) {
 
 let signalsToNamesMapping;
 function getSignalsToNamesMapping() {
-  if (signalsToNamesMapping !== undefined)
-    return signalsToNamesMapping;
+  if (signalsToNamesMapping !== undefined) return signalsToNamesMapping;
 
   signalsToNamesMapping = ObjectCreate(null);
   for (const key in signals) {
@@ -268,10 +272,10 @@ function getSignalsToNamesMapping() {
 }
 
 function convertToValidSignal(signal) {
-  if (typeof signal === 'number' && getSignalsToNamesMapping()[signal])
+  if (typeof signal === "number" && getSignalsToNamesMapping()[signal])
     return signal;
 
-  if (typeof signal === 'string') {
+  if (typeof signal === "string") {
     const signalName = signals[StringPrototypeToUpperCase(signal)];
     if (signalName) return signalName;
   }
@@ -281,10 +285,12 @@ function convertToValidSignal(signal) {
 
 function getConstructorOf(obj) {
   while (obj) {
-    const descriptor = ObjectGetOwnPropertyDescriptor(obj, 'constructor');
-    if (descriptor !== undefined &&
-        typeof descriptor.value === 'function' &&
-        descriptor.value.name !== '') {
+    const descriptor = ObjectGetOwnPropertyDescriptor(obj, "constructor");
+    if (
+      descriptor !== undefined &&
+      typeof descriptor.value === "function" &&
+      descriptor.value.name !== ""
+    ) {
       return descriptor.value;
     }
 
@@ -303,20 +309,23 @@ function getSystemErrorMap() {
   return lazyUv().getErrorMap();
 }
 
-const kCustomPromisifiedSymbol = SymbolFor('nodejs.util.promisify.custom');
-const kCustomPromisifyArgsSymbol = Symbol('customPromisifyArgs');
+const kCustomPromisifiedSymbol = SymbolFor("nodejs.util.promisify.custom");
+const kCustomPromisifyArgsSymbol = Symbol("customPromisifyArgs");
 
 function promisify(original) {
-  if (typeof original !== 'function')
-    throw new ERR_INVALID_ARG_TYPE('original', 'Function', original);
+  if (typeof original !== "function")
+    throw new ERR_INVALID_ARG_TYPE("original", "Function", original);
 
   if (original[kCustomPromisifiedSymbol]) {
     const fn = original[kCustomPromisifiedSymbol];
-    if (typeof fn !== 'function') {
-      throw new ERR_INVALID_ARG_TYPE('util.promisify.custom', 'Function', fn);
+    if (typeof fn !== "function") {
+      throw new ERR_INVALID_ARG_TYPE("util.promisify.custom", "Function", fn);
     }
     return ObjectDefineProperty(fn, kCustomPromisifiedSymbol, {
-      value: fn, enumerable: false, writable: false, configurable: true
+      value: fn,
+      enumerable: false,
+      writable: false,
+      configurable: true,
     });
   }
 
@@ -346,19 +355,19 @@ function promisify(original) {
   ObjectSetPrototypeOf(fn, ObjectGetPrototypeOf(original));
 
   ObjectDefineProperty(fn, kCustomPromisifiedSymbol, {
-    value: fn, enumerable: false, writable: false, configurable: true
+    value: fn,
+    enumerable: false,
+    writable: false,
+    configurable: true,
   });
-  return ObjectDefineProperties(
-    fn,
-    ObjectGetOwnPropertyDescriptors(original)
-  );
+  return ObjectDefineProperties(fn, ObjectGetOwnPropertyDescriptors(original));
 }
 
 promisify.custom = kCustomPromisifiedSymbol;
 
 // The built-in Array#join is slower in v8 6.0
 function join(output, separator) {
-  let str = '';
+  let str = "";
   if (output.length !== 0) {
     const lastIndex = output.length - 1;
     for (let i = 0; i < lastIndex; i++) {
@@ -374,8 +383,7 @@ function join(output, separator) {
 // As of V8 6.6, depending on the size of the array, this is anywhere
 // between 1.5-10x faster than the two-arg version of Array#splice()
 function spliceOne(list, index) {
-  for (; index + 1 < list.length; index++)
-    list[index] = list[index + 1];
+  for (; index + 1 < list.length; index++) list[index] = list[index + 1];
   list.pop();
 }
 
@@ -386,18 +394,22 @@ let getStructuredStack;
 function isInsideNodeModules() {
   if (getStructuredStack === undefined) {
     // Lazy-load to avoid a circular dependency.
-    const { runInNewContext } = require('vm');
+    const { runInNewContext } = require("vm");
     // Use `runInNewContext()` to get something tamper-proof and
     // side-effect-free. Since this is currently only used for a deprecated API,
     // the perf implications should be okay.
-    getStructuredStack = runInNewContext(`(function() {
+    getStructuredStack = runInNewContext(
+      `(function() {
       try { Error.stackTraceLimit = Infinity; } catch {}
       return function structuredStack() {
         const e = new Error();
         overrideStackTrace.set(e, (err, trace) => trace);
         return e.stack;
       };
-    })()`, { overrideStackTrace }, { filename: 'structured-stack' });
+    })()`,
+      { overrideStackTrace },
+      { filename: "structured-stack" }
+    );
   }
 
   const stack = getStructuredStack();
@@ -409,8 +421,7 @@ function isInsideNodeModules() {
       const filename = frame.getFileName();
       // If a filename does not start with / or contain \,
       // it's likely from Node.js core.
-      if (!RegExpPrototypeTest(/^\/|\\/, filename))
-        continue;
+      if (!RegExpPrototypeTest(/^\/|\\/, filename)) continue;
       return RegExpPrototypeTest(kNodeModulesRE, filename);
     }
   }
@@ -419,7 +430,7 @@ function isInsideNodeModules() {
 
 function once(callback) {
   let called = false;
-  return function(...args) {
+  return function (...args) {
     if (called) return;
     called = true;
     ReflectApply(callback, this, args);
@@ -431,9 +442,9 @@ let validateUint32;
 function sleep(msec) {
   // Lazy-load to avoid a circular dependency.
   if (validateUint32 === undefined)
-    ({ validateUint32 } = require('internal/validators'));
+    ({ validateUint32 } = require("internal/validators"));
 
-  validateUint32(msec, 'msec');
+  validateUint32(msec, "msec");
   _sleep(msec);
 }
 
@@ -451,20 +462,20 @@ function createDeferredPromise() {
 let DOMException;
 const lazyDOMException = hideStackFrames((message, name) => {
   if (DOMException === undefined)
-    DOMException = internalBinding('messaging').DOMException;
+    DOMException = internalBinding("messaging").DOMException;
   return new DOMException(message, name);
 });
 // Symbol used to customize promisify conversion
-const customPromisifyArgs = kCustomPromisifyArgsSymbol
+const customPromisifyArgs = kCustomPromisifyArgsSymbol;
 
 // Symbol used to provide a custom inspect function for an object as an
 // alternative to using 'inspect'
-const customInspectSymbol= SymbolFor('nodejs.util.inspect.custom')
+const customInspectSymbol = SymbolFor("nodejs.util.inspect.custom");
 
 // Used by the buffer module to capture an internal reference to the
 // default isEncoding implementation, just in case userland overrides it.
-const kIsEncodingSymbol= Symbol('kIsEncodingSymbol')
-const kVmBreakFirstLineSymbol= Symbol('kVmBreakFirstLineSymbol')
+const kIsEncodingSymbol = Symbol("kIsEncodingSymbol");
+const kVmBreakFirstLineSymbol = Symbol("kVmBreakFirstLineSymbol");
 
 export {
   assertCrypto,
@@ -489,7 +500,8 @@ export {
   sleep,
   spliceOne,
   removeColors,
-
+  types,
+  inspect,
   customPromisifyArgs,
   customInspectSymbol,
   kIsEncodingSymbol,

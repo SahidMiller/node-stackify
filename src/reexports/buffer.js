@@ -1,2 +1,2 @@
-export * from "buffer";
-export { default as default } from "buffer";
+export * from "../../node_modules/buffer/index.js";
+export { default as default } from "../../node_modules/buffer/index.js";

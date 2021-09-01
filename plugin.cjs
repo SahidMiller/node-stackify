@@ -2,22 +2,24 @@
 const { ProvidePlugin } = require("webpack");
 const filterObject = require("filter-obj");
 const path = require("path");
-const { resolve } = require("url");
 
 const excludeObjectKeys = (object, excludeKeys) =>
   filterObject(object, (key) => !excludeKeys.includes(key));
-console.log(path.resolve(__dirname, "./src/reexports/buffer.js"));
-const resolves = {
+
+  const resolves = {
   //TODO God willing: port child_process, cluster, dns, http2, perf_hooks, v8, worker_threads
   buffer: path.resolve(__dirname, "./src/reexports/buffer.js"),
   console: path.resolve(__dirname, "./src/reexports/console.js"),
   constants: path.resolve(__dirname, "./src/constants.js"),
   crypto: path.resolve(__dirname, "./src/crypto.js"),
   domain: path.resolve(__dirname, "./src/reexports/domain.js"),
-  events: path.resolve(__dirname, "./src/reexports/events.js"),
+  //Events apparently isn't cjs compatible since it's a constructor
+  events: path.resolve(__dirname, "./src/reexports/events.cjs"),
+  fs: path.resolve(__dirname, "./src/fs.js"),
   http: path.resolve(__dirname, "./src/reexports/http.js"),
   https: path.resolve(__dirname, "./src/reexports/https.js"),
-  module: path.resolve(__dirname, "./src/module.js"),
+  //module: path.resolve(__dirname, "./src/module.js"),
+  net: path.resolve(__dirname, "./src/reexports/net.js"),
   os: path.resolve(__dirname, "./src/os.js"),
   path: path.resolve(__dirname, "./src/reexports/path.js"),
   punycode: path.resolve(__dirname, "./src/reexports/punycode.js"),
@@ -25,7 +27,7 @@ const resolves = {
   querystring: path.resolve(__dirname, "./src/reexports/querystring.js"),
   readline: path.resolve(__dirname, "./src/readline.js"),
   repl: path.resolve(__dirname, "./src/repl.js"),
-  stream: path.resolve(__dirname, "./src/reexports/stream.js"),
+  stream: path.resolve(__dirname, "./src/reexports/stream.cjs"),
   _stream_duplex: path.resolve(__dirname, "./src/reexports/_stream_duplex.js"),
   _stream_passthrough: path.resolve(
     __dirname,
