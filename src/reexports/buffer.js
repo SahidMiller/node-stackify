@@ -1,2 +1,2 @@
-export * from "../../node_modules/buffer/index.js";
-export { default as default } from "../../node_modules/buffer/index.js";
+export * from "buffer_browserify";
+export { default as default } from "buffer_browserify";

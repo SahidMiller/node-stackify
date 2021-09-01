@@ -62,6 +62,12 @@ const excludeObjectKeys = (object, excludeKeys) =>
   perf_hooks: false,
   v8: false,
   worker_threads: false,
+
+  "util_browserify": require.resolve('util/'),
+  "string_decoder_browserify": require.resolve('string_decoder/'),
+  "punycode_browserify": require.resolve('punycode/'),
+  "events_browserify": require.resolve('events/'),
+  "buffer_browserify": require.resolve('buffer/'),
 };
 
 module.exports = class NodePolyfillPlugin {

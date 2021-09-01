@@ -1,6 +1,7 @@
-export * from "virtualfs";
+export * from "virtualfs/dist/index.node.es.js";
 
-import { default as fs } from "../../node_modules/virtualfs/dist/index.node.es.js";
+import { default as fs } from "virtualfs/dist/index.node.es.js";
+
 import { pathToFilename, getDefaultOpts } from "./utils.js";
 import { FSWatcher } from "./FSWatcher.js";
 import { StatWatcher } from "./StatWatcher.js";
