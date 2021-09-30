@@ -95,14 +95,15 @@ module.exports = class NodePolyfillPlugin {
         )
       )
     );
+    const excludedAliases = excludeObjectKeys(resolves, this.options.excludeAliases)
 
     compiler.options.resolve.alias = {
-      ...excludeObjectKeys(resolves, this.options.excludeAliases),
+      ...excludedAliases,
       ...compiler.options.resolve.alias,
     };
 
     compiler.options.resolve.fallback = {
-      ...excludeObjectKeys(resolves, this.options.excludeAliases),
+      ...excludedAliases,
       ...compiler.options.resolve.fallback,
     };
   }
