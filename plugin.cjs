@@ -10,6 +10,7 @@ const resolves = {
   //TODO God willing: port child_process, cluster, dns, http2, perf_hooks, v8, worker_threads
   assert: path.resolve(__dirname, "./src/reexports/assert.cjs"),
   buffer: path.resolve(__dirname, "./src/reexports/buffer.js"),
+  child_process: path.resolve(__dirname, "./src/child_process.js"),
   console: path.resolve(__dirname, "./src/reexports/console.cjs"),
   constants: path.resolve(__dirname, "./src/constants.js"),
   crypto: path.resolve(__dirname, "./src/crypto.js"),
@@ -56,7 +57,6 @@ const resolves = {
   vm: path.resolve(__dirname, "./src/reexports/vm.js"),
   zlib: path.resolve(__dirname, "./src/reexports/zlib.js"),
 
-  child_process: false,
   cluster: false,
   dns: false,
   http2: false,

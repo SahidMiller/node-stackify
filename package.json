@@ -71,6 +71,8 @@
       "require": "./plugin.cjs",
       "default": "./plugin.cjs"
     },
+    "./child_process": "./src/child_process.js",
+    "./child_process/bootstrap-worker": "./src/worker-context/index.js",
     ".": "./index.js"
   },
   "author": {
@@ -92,11 +94,13 @@
     "esbuild": "^0.12.22",
     "esbuild-esm-loader": "^0.1.0",
     "esm-loader": "^0.1.0",
+    "executable": "^4.1.1",
     "filter-obj": "^2.0.2",
     "js-md4": "^0.3.2",
     "node-inspect-extracted": "^1.0.8",
     "node-polyfill-webpack-plugin": "^1.1.4",
     "querystring": "^0.2.1",
+    "remote-worker-streams": "^0.0.1",
     "url": "^0.11.0",
     "urlite": "^3.0.0",
     "virtualfs": "SahidMiller/js-virtualfs",
