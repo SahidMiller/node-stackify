@@ -44,7 +44,10 @@
     "./os": "./src/os.js",
     "./path": "./src/reexports/path.js",
     "./punycode": "./src/reexports/punycode.js",
-    "./process": "./src/process.js",
+    "./process": {
+      "require": "./src/process.cjs",
+      "default": "./src/process.js"
+    },
     "./querystring": "./src/reexports/querystring.js",
     "./readline": "./src/readline.js",
     "./repl": "./src/repl.js",

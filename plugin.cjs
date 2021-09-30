@@ -24,7 +24,7 @@ const resolves = {
   os: path.resolve(__dirname, "./src/os.js"),
   path: path.resolve(__dirname, "./src/reexports/path.js"),
   punycode: path.resolve(__dirname, "./src/reexports/punycode.js"),
-  process: path.resolve(__dirname, "./src/process.js"),
+  process: path.resolve(__dirname, "./src/process.cjs"),
   querystring: path.resolve(__dirname, "./src/reexports/querystring.js"),
   readline: path.resolve(__dirname, "./src/readline.js"),
   repl: path.resolve(__dirname, "./src/repl.js"),
