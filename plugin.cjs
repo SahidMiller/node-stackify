@@ -6,10 +6,11 @@ const path = require("path");
 const excludeObjectKeys = (object, excludeKeys) =>
   filterObject(object, (key) => !excludeKeys.includes(key));
 
-  const resolves = {
+const resolves = {
   //TODO God willing: port child_process, cluster, dns, http2, perf_hooks, v8, worker_threads
+  assert: path.resolve(__dirname, "./src/reexports/assert.cjs"),
   buffer: path.resolve(__dirname, "./src/reexports/buffer.js"),
-  console: path.resolve(__dirname, "./src/reexports/console.js"),
+  console: path.resolve(__dirname, "./src/reexports/console.cjs"),
   constants: path.resolve(__dirname, "./src/constants.js"),
   crypto: path.resolve(__dirname, "./src/crypto.js"),
   domain: path.resolve(__dirname, "./src/reexports/domain.js"),
@@ -63,6 +64,7 @@ const excludeObjectKeys = (object, excludeKeys) =>
   v8: false,
   worker_threads: false,
 
+  "assert_browserify": require.resolve('assert/'),
   "util_browserify": require.resolve('util/'),
   "url_browserify": require.resolve('url/'),
   "string_decoder_browserify": require.resolve('string_decoder/'),

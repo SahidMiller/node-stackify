@@ -20,8 +20,15 @@
   "main": "./index.js",
   "type": "module",
   "exports": {
+    "./assert": {
+      "import": "./src/reexports/assert.js",
+      "require": "./src/reexports/assert.cjs"
+    },
     "./buffer": "./src/reexports/buffer.js",
-    "./console": "./src/reexports/console.js",
+    "./console": {
+      "import": "./src/reexports/console.js",
+      "require": "./src/reexports/console.cjs"
+    },
     "./constants": "./src/constants.js",
     "./crypto": "./src/crypto.js",
     "./domain": "./src/reexports/domain.js",
@@ -56,6 +63,7 @@
     "./util": "./src/reexports/util.js",
     "./vm": "./src/reexports/vm.js",
     "./zlib": "./src/reexports/zlib.js",
+    "./node": "./src/internal/modules/run_main.js",
     "./plugin": {
       "require": "./plugin.cjs",
       "default": "./plugin.cjs"
@@ -73,7 +81,10 @@
     "@babel/standalone": "^7.15.3",
     "@darkwolf/primordials": "^1.2.1",
     "@network-stackify/stack": "1.1.3",
+    "acorn": "^8.5.0",
+    "acorn-walk": "^8.2.0",
     "browser-process-hrtime": "^1.0.0",
+    "buffer": "https://github.com/SahidMiller/buffer.git",
     "es-dependency-graph": "^0.1.6",
     "esbuild": "^0.12.22",
     "esbuild-esm-loader": "^0.1.0",
@@ -86,8 +97,10 @@
     "url": "^0.11.0",
     "urlite": "^3.0.0",
     "virtualfs": "SahidMiller/js-virtualfs",
-    "webpack": "^5.51.1",
     "whatwg-url": "^9.1.0"
+  },
+  "devDependencies": {
+    "webpack": "^5.51.1"
   },
   "repository": {
     "type": "git",

@@ -1,4 +1,9 @@
+let path;
 export const ENCODING_UTF8 = 'utf8';
+
+(async () => {
+  path = await import("path");
+})();
 
 let resolve = (filename, base = process.cwd()) => path.resolve(base, filename);
 
@@ -12,7 +17,7 @@ export function filenameToSteps(filename, base) {
   const fullPath = resolve(filename, base);
   const fullPathSansSlash = fullPath.substr(1);
   if (!fullPathSansSlash) return [];
-  return fullPathSansSlash.split(sep);
+  return fullPathSansSlash.split(path.posix.sep);
 }
 
 export function getPathFromURLPosix(url) {
@@ -40,8 +45,8 @@ export function getOptions(defaults, options) {
       case 'string':
         opts = Object.assign({}, defaults, { encoding: options });
         break;
-      case 'object':
-        opts = Object.assign({}, defaults, options);
+        case 'object':
+          opts = Object.assign({}, defaults, options);
         break;
       default:
         throw TypeError(ERRSTR_OPTS(tipeof));

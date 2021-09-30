@@ -1,11 +1,11 @@
 'use strict';
 
-const {
+import {
   ArrayPrototypeConcat,
   FunctionPrototypeBind,
   ObjectDefineProperty,
   ObjectKeys,
-} = require("@darkwolf/primordials");
+} from "@darkwolf/primordials";
 
 let session;
 function sendInspectorCommand(cb, onError) {
@@ -62,7 +62,7 @@ function wrapConsole(consoleFromNode, consoleFromVM) {
 
 // Stores the console from VM, should be set during bootstrap.
 let consoleFromVM;
-module.exports = {
+export default {
   installConsoleExtensions,
   sendInspectorCommand,
   wrapConsole,

@@ -1198,6 +1198,18 @@ Module._extensions[".js"] = function (module, filename) {
   } else {
     content = fs.readFileSync(filename, "utf8");
 
+    try {
+      const shebangRegex = /^#!(.*)/;
+      const shebangMatch = content.match(shebangRegex);
+      const shebangValue =
+        shebangMatch && shebangMatch.length > 1 && shebangMatch[1];
+
+      content = content.replace(shebangRegex, "");
+    } catch (err) {
+      //TODO God willing: handle error
+      console.log(err);
+    }
+
     if (isModule) {
       content = babel.transform(content, {
         presets: ["env"],
