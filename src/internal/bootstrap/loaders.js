@@ -37,7 +37,7 @@
 // - process.moduleLoadList: an array recording the bindings and the modules
 //   loaded in the process and the order in which they are loaded.
 
-'use strict';
+"use strict";
 
 // This file is compiled as if it's wrapped in a function with arguments
 // passed by node::RunBootstrapping()
@@ -62,62 +62,59 @@ import {
 
 // Set up process.moduleLoadList.
 const moduleLoadList = [];
-ObjectDefineProperty(process, 'moduleLoadList', {
+ObjectDefineProperty(process, "moduleLoadList", {
   value: moduleLoadList,
   configurable: true,
   enumerable: true,
-  writable: false
+  writable: false,
 });
-
 
 // internalBindingAllowlist contains the name of internalBinding modules
 // that are allowed for access via process.binding()... This is used
 // to provide a transition path for modules that are being moved over to
 // internalBinding.
 const internalBindingAllowlist = new SafeSet([
-  'async_wrap',
-  'buffer',
-  'cares_wrap',
-  'config',
-  'constants',
-  'contextify',
-  'crypto',
-  'fs',
-  'fs_event_wrap',
-  'http_parser',
-  'icu',
-  'inspector',
-  'js_stream',
-  'natives',
-  'os',
-  'pipe_wrap',
-  'process_wrap',
-  'signal_wrap',
-  'spawn_sync',
-  'stream_wrap',
-  'tcp_wrap',
-  'tls_wrap',
-  'tty_wrap',
-  'udp_wrap',
-  'url',
-  'util',
-  'uv',
-  'v8',
-  'zlib',
+  "async_wrap",
+  "buffer",
+  "cares_wrap",
+  "config",
+  "constants",
+  "contextify",
+  "crypto",
+  "fs",
+  "fs_event_wrap",
+  "http_parser",
+  "icu",
+  "inspector",
+  "js_stream",
+  "natives",
+  "os",
+  "pipe_wrap",
+  "process_wrap",
+  "signal_wrap",
+  "spawn_sync",
+  "stream_wrap",
+  "tcp_wrap",
+  "tls_wrap",
+  "tty_wrap",
+  "udp_wrap",
+  "url",
+  "util",
+  "uv",
+  "v8",
+  "zlib",
 ]);
 
 const runtimeDeprecatedList = new SafeSet([
-  'async_wrap',
-  'crypto',
-  'http_parser',
-  'signal_wrap',
-  'url',
-  'v8',
+  "async_wrap",
+  "crypto",
+  "http_parser",
+  "signal_wrap",
+  "url",
+  "v8",
 ]);
 
-const legacyWrapperList = new SafeSet([
-  'util',
-]);
+const legacyWrapperList = new SafeSet(["util"]);
 
 // Set up process.binding() and process._linkedBinding().
 {
@@ -132,11 +129,12 @@ const legacyWrapperList = new SafeSet([
         runtimeDeprecatedList.delete(module);
         process.emitWarning(
           `Access to process.binding('${module}') is deprecated.`,
-          'DeprecationWarning',
-          'DEP0111');
+          "DeprecationWarning",
+          "DEP0111"
+        );
       }
       if (legacyWrapperList.has(module)) {
-        return nativeModuleRequire('internal/legacy/processbinding')[module]();
+        return nativeModuleRequire("internal/legacy/processbinding")[module]();
       }
       return internalBinding(module);
     }
@@ -147,7 +145,7 @@ const legacyWrapperList = new SafeSet([
   process._linkedBinding = function _linkedBinding(module) {
     module = String(module);
     let mod = bindingObj[module];
-    if (typeof mod !== 'object')
+    if (typeof mod !== "object")
       mod = bindingObj[module] = getLinkedBinding(module);
     return mod;
   };
@@ -162,13 +160,14 @@ let internalBinding;
   const bindingObj = ObjectCreate(null);
   // eslint-disable-next-line no-global-assign
   internalBinding = function internalBinding(module) {
-    let mod = bindingObj[module];
+    let mod = bindingObj[module];    
     if (typeof mod !== 'object') {
-      // console.log(module)
+      // mod = bindingObj[module] = getInternalBinding(module);
       if (module == "native_module") {
-        return { moduleIds: [], compileFunction: () => {
-          //console.log("salam from compile function")
-        }}
+        return { 
+          moduleIds: [], 
+          compileFunction: () => {}
+        }
       }
       mod = bindingObj[module] = {} //getInternalBinding(module);
       ArrayPrototypePush(moduleLoadList, `Internal Binding ${module}`);
@@ -177,16 +176,13 @@ let internalBinding;
   };
 }
 
-const loaderId = 'internal/bootstrap/loaders';
-const {
-  moduleIds,
-  compileFunction
-} = internalBinding('native_module');
+const loaderId = "internal/bootstrap/loaders";
+const { moduleIds, compileFunction } = internalBinding("native_module");
 
 const getOwn = (target, property, receiver) => {
-  return ObjectPrototypeHasOwnProperty(target, property) ?
-    ReflectGet(target, property, receiver) :
-    undefined;
+  return ObjectPrototypeHasOwnProperty(target, property)
+    ? ReflectGet(target, property, receiver)
+    : undefined;
 };
 
 /**
@@ -198,7 +194,7 @@ class NativeModule {
   /**
    * A map from the module IDs to the module instances.
    * @type {Map<string, NativeModule>}
-  */
+   */
   static map = new SafeMap(
     ArrayPrototypeMap(moduleIds, (id) => [id, new NativeModule(id)])
   );
@@ -206,7 +202,7 @@ class NativeModule {
   constructor(id) {
     this.filename = `${id}.js`;
     this.id = id;
-    this.canBeRequiredByUsers = !StringPrototypeStartsWith(id, 'internal/');
+    this.canBeRequiredByUsers = !StringPrototypeStartsWith(id, "internal/");
 
     // The CJS exports object of the module.
     this.exports = {};
@@ -259,7 +255,7 @@ class NativeModule {
     if (!this.exportKeys) {
       // When using --expose-internals, we do not want to reflect the named
       // exports from core modules as this can trigger unnecessary getters.
-      const internal = StringPrototypeStartsWith(this.id, 'internal/');
+      const internal = StringPrototypeStartsWith(this.id, "internal/");
       this.exportKeys = internal ? [] : ObjectKeys(this.exports);
     }
     this.getESMFacade();
@@ -268,18 +264,17 @@ class NativeModule {
   }
 
   getESMFacade() {
+    //TODO God willing: replace with babel compile to CJS
     if (this.module) return this.module;
-    const { ModuleWrap } = internalBinding('module_wrap');
+    const { ModuleWrap } = internalBinding("module_wrap");
     const url = `node:${this.id}`;
     const nativeModule = this;
     const exportsKeys = ArrayPrototypeSlice(this.exportKeys);
-    ArrayPrototypePush(exportsKeys, 'default');
-    this.module = new ModuleWrap(
-      url, undefined, exportsKeys,
-      function() {
-        nativeModule.syncExports();
-        this.setExport('default', nativeModule.exports);
-      });
+    ArrayPrototypePush(exportsKeys, "default");
+    this.module = new ModuleWrap(url, undefined, exportsKeys, function () {
+      nativeModule.syncExports();
+      this.setExport("default", nativeModule.exports);
+    });
     // Ensure immediate sync execution to capture exports now
     this.module.instantiate();
     this.module.evaluate(-1, false);
@@ -295,9 +290,11 @@ class NativeModule {
     if (this.module) {
       for (let i = 0; i < names.length; i++) {
         const exportName = names[i];
-        if (exportName === 'default') continue;
-        this.module.setExport(exportName,
-                              getOwn(this.exports, exportName, this.exports));
+        if (exportName === "default") continue;
+        this.module.setExport(
+          exportName,
+          getOwn(this.exports, exportName, this.exports)
+        );
       }
     }
   }
@@ -311,8 +308,9 @@ class NativeModule {
     this.loading = true;
 
     try {
-      const requireFn = StringPrototypeStartsWith(this.id, 'internal/deps/') ?
-        requireWithFallbackInDeps : nativeModuleRequire;
+      const requireFn = StringPrototypeStartsWith(this.id, "internal/deps/")
+        ? requireWithFallbackInDeps
+        : nativeModuleRequire;
 
       const fn = compileFunction(id);
       fn(this.exports, requireFn, this, process, internalBinding, primordials);
@@ -332,7 +330,7 @@ class NativeModule {
 const loaderExports = {
   internalBinding,
   NativeModule,
-  require: nativeModuleRequire
+  require: nativeModuleRequire,
 };
 
 function nativeModuleRequire(id) {

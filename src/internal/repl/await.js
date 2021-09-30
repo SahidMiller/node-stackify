@@ -1,8 +1,29 @@
 "use strict";
 
-import { Recoverable } from "../repl";
+import {
+  ArrayFrom,
+  ArrayPrototypeForEach,
+  ArrayPrototypeJoin,
+  ArrayPrototypePop,
+  ArrayPrototypePush,
+  FunctionPrototype,
+  ObjectKeys,
+  RegExpPrototypeSymbolReplace,
+  StringPrototypeEndsWith,
+  StringPrototypeIncludes,
+  StringPrototypeIndexOf,
+  StringPrototypeRepeat,
+  StringPrototypeSplit,
+  StringPrototypeStartsWith,
+  SyntaxError,
+} from "@darkwolf/primordials";
 
-const noop = () => {};
+import { Parser as parser } from 'acorn';
+import * as walk from 'acorn-walk';
+
+import { Recoverable } from "../../repl.js";
+
+const noop = FunctionPrototype;
 const visitorsWithoutAncestors = {
   ClassDeclaration(node, state, c) {
     if (state.ancestors[state.ancestors.length - 2] === state.body) {
@@ -31,87 +52,75 @@ const visitorsWithoutAncestors = {
     walk.base.ReturnStatement(node, state, c);
   },
   VariableDeclaration(node, state, c) {
-    if (
-      node.kind === "var" ||
-      state.ancestors[state.ancestors.length - 2] === state.body
-    ) {
+    if (node.kind === 'var' ||
+        state.ancestors[state.ancestors.length - 2] === state.body) {
       if (node.declarations.length === 1) {
-        state.replace(node.start, node.start + node.kind.length, "void");
+        state.replace(node.start, node.start + node.kind.length, 'void');
       } else {
-        state.replace(node.start, node.start + node.kind.length, "void (");
+        state.replace(node.start, node.start + node.kind.length, 'void (');
       }
 
-      Array.prototype.forEach.call(node.declarations, (decl) => {
-        state.prepend(decl, "(");
-        state.append(decl, decl.init ? ")" : "=undefined)");
+      ArrayPrototypeForEach(node.declarations, (decl) => {
+        state.prepend(decl, '(');
+        state.append(decl, decl.init ? ')' : '=undefined)');
       });
 
       if (node.declarations.length !== 1) {
-        state.append(node.declarations[node.declarations.length - 1], ")");
+        state.append(node.declarations[node.declarations.length - 1], ')');
       }
     }
 
     walk.base.VariableDeclaration(node, state, c);
-  },
+  }
 };
 
 const visitors = {};
-for (const nodeType of Object.keys(walk.base)) {
+for (const nodeType of ObjectKeys(walk.base)) {
   const callback = visitorsWithoutAncestors[nodeType] || walk.base[nodeType];
   visitors[nodeType] = (node, state, c) => {
     const isNew = node !== state.ancestors[state.ancestors.length - 1];
     if (isNew) {
-      Array.prototype.push.call(state.ancestors, node);
+      ArrayPrototypePush(state.ancestors, node);
     }
     callback(node, state, c);
     if (isNew) {
-      Array.prototype.pop.call(state.ancestors);
+      ArrayPrototypePop(state.ancestors);
     }
   };
 }
 
 function processTopLevelAwait(src) {
-  const wrapPrefix = "(async () => { ";
+  const wrapPrefix = '(async () => { ';
   const wrapped = `${wrapPrefix}${src} })()`;
-  const wrappedArray = Array.from(wrapped);
+  const wrappedArray = ArrayFrom(wrapped);
   let root;
   try {
-    root = parser.parse(wrapped, { ecmaVersion: "latest" });
+    root = parser.parse(wrapped, { ecmaVersion: 'latest' });
   } catch (e) {
-    if (String.prototype.startsWith.call(e.message, "Unterminated "))
+    if (StringPrototypeStartsWith(e.message, 'Unterminated '))
       throw new Recoverable(e);
     // If the parse error is before the first "await", then use the execution
     // error. Otherwise we must emit this parse error, making it look like a
     // proper syntax error.
-    const awaitPos = String.prototype.indexOf.call(src, "await");
+    const awaitPos = StringPrototypeIndexOf(src, 'await');
     const errPos = e.pos - wrapPrefix.length;
-    if (awaitPos > errPos) return null;
+    if (awaitPos > errPos)
+      return null;
     // Convert keyword parse errors on await into their original errors when
     // possible.
-    if (
-      errPos === awaitPos + 6 &&
-      String.prototype.includes.call(
-        e.message,
-        "Expecting Unicode escape sequence"
-      )
-    )
+    if (errPos === awaitPos + 6 &&
+        StringPrototypeIncludes(e.message, 'Expecting Unicode escape sequence'))
       return null;
-    if (
-      errPos === awaitPos + 7 &&
-      String.prototype.includes.call(e.message, "Unexpected token")
-    )
+    if (errPos === awaitPos + 7 &&
+        StringPrototypeIncludes(e.message, 'Unexpected token'))
       return null;
     const line = e.loc.line;
     const column = line === 1 ? e.loc.column - wrapPrefix.length : e.loc.column;
-    let message =
-      "\n" +
-      String.prototype.split.call(src, "\n")[line - 1] +
-      "\n" +
-      String.prototype.repeat.call(" ", column) +
-      "^\n\n" +
-      RegExp.prototype.symbolReplace.call(/ \([^)]+\)/, e.message, "");
+    let message = '\n' + StringPrototypeSplit(src, '\n')[line - 1] + '\n' +
+        StringPrototypeRepeat(' ', column) +
+        '^\n\n' + RegExpPrototypeSymbolReplace(/ \([^)]+\)/, e.message, '');
     // V8 unexpected token errors include the token string.
-    if (String.prototype.endsWith.call(message, "Unexpected token"))
+    if (StringPrototypeEndsWith(message, 'Unexpected token'))
       message += " '" + src[e.pos - wrapPrefix.length] + "'";
     // eslint-disable-next-line no-restricted-syntax
     throw new SyntaxError(message);
@@ -122,7 +131,7 @@ function processTopLevelAwait(src) {
     ancestors: [],
     replace(from, to, str) {
       for (let i = from; i < to; i++) {
-        wrappedArray[i] = "";
+        wrappedArray[i] = '';
       }
       if (from === to) str += wrappedArray[from];
       wrappedArray[from] = str;
@@ -134,7 +143,7 @@ function processTopLevelAwait(src) {
       wrappedArray[node.end - 1] += str;
     },
     containsAwait: false,
-    containsReturn: false,
+    containsReturn: false
   };
 
   walk.recursive(body, state, visitors);
@@ -147,7 +156,7 @@ function processTopLevelAwait(src) {
   }
 
   const last = body.body[body.body.length - 1];
-  if (last.type === "ExpressionStatement") {
+  if (last.type === 'ExpressionStatement') {
     // For an expression statement of the form
     // ( expr ) ;
     // ^^^^^^^^^^   // last
@@ -160,12 +169,14 @@ function processTopLevelAwait(src) {
     // semicolon. Since there can only be more right parentheses between
     // last.expression.end and the semicolon, appending one more to
     // last.expression should be fine.
-    state.prepend(last, "return (");
-    state.append(last.expression, ")");
+    state.prepend(last, 'return (');
+    state.append(last.expression, ')');
   }
 
-  return Array.prototype.join.call(wrappedArray, "");
+  return ArrayPrototypeJoin(wrappedArray, '');
 }
+
+export { processTopLevelAwait }
 
 export default {
   processTopLevelAwait,
