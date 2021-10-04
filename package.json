@@ -44,10 +44,7 @@
     "./os": "./src/os.js",
     "./path": "./src/reexports/path.js",
     "./punycode": "./src/reexports/punycode.js",
-    "./process": {
-      "require": "./src/process.cjs",
-      "default": "./src/process.js"
-    },
+    "./process": "./src/process.cjs",
     "./querystring": "./src/reexports/querystring.js",
     "./readline": "./src/readline.js",
     "./repl": "./src/repl.js",
@@ -65,7 +62,7 @@
     "./url": "./src/url.js",
     "./util": "./src/reexports/util.js",
     "./vm": "./src/reexports/vm.js",
-    "./zlib": "./src/reexports/zlib.js",
+    "./zlib": "./src/reexports/zlib.cjs",
     "./node": "./src/internal/modules/run_main.js",
     "./plugin": {
       "require": "./plugin.cjs",
@@ -100,7 +97,7 @@
     "node-inspect-extracted": "^1.0.8",
     "node-polyfill-webpack-plugin": "^1.1.4",
     "querystring": "^0.2.1",
-    "remote-worker-streams": "^0.0.1",
+    "remote-worker-streams": "0.0.2",
     "url": "^0.11.0",
     "urlite": "^3.0.0",
     "virtualfs": "SahidMiller/js-virtualfs",

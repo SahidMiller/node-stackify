@@ -1,14 +1,22 @@
 import crypto from "crypto-browserify";
 import md4 from "js-md4";
 
+const newCrypto = Object.assign({}, crypto);
+
+const createVerify = crypto.createVerify;
+newCrypto.createVerify = ((algo) => {
+  algo = algo === "sha1" ? "RSA-SHA1" : algo;
+  return createVerify(algo);
+}).bind(newCrypto);
+
 const createSign = crypto.createSign;
-crypto.createSign = ((algo) => {
+newCrypto.createSign = ((algo) => {
   algo = algo === "sha1" ? "RSA-SHA1" : algo;
   return createSign(algo);
-}).bind(crypto);
+}).bind(newCrypto);
 
 const createHash = crypto.createHash;
-crypto.createHash = ((algo) => {
+newCrypto.createHash = ((algo) => {
   if (algo === "md4") {
     const md4Hasher = md4.create();
     const origDigest = md4Hasher.digest.bind(md4Hasher);
@@ -19,7 +27,7 @@ crypto.createHash = ((algo) => {
     return md4Hasher;
   }
   return createHash(algo);
-}).bind(crypto);
+}).bind(newCrypto);
 
 export * from "crypto-browserify";
-export default crypto;
+export default newCrypto;

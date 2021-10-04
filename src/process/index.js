@@ -1,17 +1,18 @@
 import hrtime from "browser-process-hrtime";
 import nextTick from "./nextTick.js";
-import { EventEmitter } from "events";
-import fs from "fs";
-import { Readable, Writable } from "stream";
-import constants from "constants";
 
+let fs, EventEmitter, constants;
 export default class Process {
-  constructor({ stdin, stdout, stderr, argv, env }) {
+  constructor({ stdin, stdout, stderr, argv, env } = {}) {
     this._stdin = stdin;
     this._stdout = stdout;
     this._stderr = stderr;
     this._argv = argv;
     this._env = env;
+
+    import("events").then(mod => EventEmitter = mod.default.EventEmitter);
+    import("fs").then(mod => fs = mod.default);
+    import("constants").then(mod => constants = mod.default);
   }
 
   get fs() {
@@ -156,7 +157,7 @@ export default class Process {
     return nextTick(...arguments);
   }
 
-  unmask() {
+  umask() {
     return 0;
   }
 

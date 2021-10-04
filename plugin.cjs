@@ -55,7 +55,7 @@ const resolves = {
   url: path.resolve(__dirname, "./src/url.js"),
   util: path.resolve(__dirname, "./src/reexports/util.js"),
   vm: path.resolve(__dirname, "./src/reexports/vm.js"),
-  zlib: path.resolve(__dirname, "./src/reexports/zlib.js"),
+  zlib: path.resolve(__dirname, "./src/reexports/zlib.cjs"),
 
   cluster: false,
   dns: false,
@@ -87,9 +87,10 @@ module.exports = class NodePolyfillPlugin {
       new ProvidePlugin(
         excludeObjectKeys(
           {
-            Buffer: [path.resolve(__dirname, "src/buffer/"), "Buffer"],
+            Buffer: ["buffer", "Buffer"],
             console: require.resolve("console-browserify"),
-            process: path.resolve(__dirname, "src/process"),
+            process: path.resolve(__dirname, "src/process.cjs"),
+            global: path.resolve(__dirname, "src/global.cjs")
           },
           this.options.excludeAliases
         )
