@@ -1,12 +1,19 @@
-export default function bootstrap({ bootstrapFs, afterProcess }) {
+export default function bootstrap({ bootstrapFs, afterProcess, beforeExecution }) {
   
   if (!bootstrapFs) {
     throw "Invalid options. options.bootstrapFs callback is required."
   } 
 
   self.addEventListener("message", async function handleNode(event) {
-  
+    
     self.removeEventListener("message", handleNode);
+    self.addEventListener("message", (e) => {
+      const { action, payload } = e.data || {}
+      //TODO God willing: dedicate worker message events directly to process from now on or single action with payload to emit, God willing?
+      if (action === "SIGTERM") {
+        process.emit("SIGTERM");
+      }
+    });
 
     //TODO God willing: get terminal columns and rows God willing;
     const { 
@@ -24,6 +31,8 @@ export default function bootstrap({ bootstrapFs, afterProcess }) {
     const fs = await bootstrapFs(fsProxyPort);
     
     globalThis.fs = fs
+    
+    //TODO God willing: legit navigation and other polyfills and web-worker-proxies for window
     globalThis.window = globalThis;
     
     const { bootstrapStdin, bootstrapStdout } = await import("./bootstrap-stdio.js");
@@ -47,7 +56,7 @@ export default function bootstrap({ bootstrapFs, afterProcess }) {
     const { default: Process } = await import("../process/index.js");
     
     //TODO God willing: don't start/load whatever we're running until this we get our stdout, God willing.
-    const process = global.process = new Process({
+    const process = globalThis.process = new Process({
       stdin, 
       stdout, 
       stderr: stdout,
@@ -66,7 +75,54 @@ export default function bootstrap({ bootstrapFs, afterProcess }) {
     }
 
     //Delay setting up worker until fs is setup globally
-    await execute(process);
+    const { executeUserEntryPoint } = await import("../internal/modules/run_main.js");
+    const module = await import("../module.js");
+    
+    const { Module } = module;
+    const console = Object.assign({}, await import("console"));
+      
+    console.log = (...data) => {
+      process.stdout.write(data.join(",") + "\n");
+    }
+    
+    //TODO God willing: hook for adding built in modules
+    Module._builtinModules = await bootstrapModules({ process, console, tty, module: Module });
+  
+    //TODO God willing: expansion of args is important but I can wait for executables in here, God willing.
+    // In which case assuming a fs is present.
+    const entry = process.argv[1];
+    const exitPromise = waitForProcessExit(process);
+    
+    process.stdout.on('finish', () => {
+      if (!process.stdout.destroyed) {
+        process.stdout.destroy();
+      }
+    });
+
+    process.stdout.on('close', () => {
+      process.nextTick(() => self.close());
+    });
+
+    try {
+      
+      if (beforeExecution) {
+        await beforeExecution(module);
+      }
+
+      //Assume the tool writes to process.stdin? TGIMA.
+      executeUserEntryPoint(entry);
+      await exitPromise;
+  
+    } catch (err) {
+  
+      if (err) {
+        process.stdout.write(err + "\n");
+      }
+  
+    } finally {
+  
+      process.stdout.end();
+    }
   })
 }
 
@@ -89,40 +145,4 @@ async function bootstrapModules(modules) {
   Object.assign(globalThis, updatedBuiltins);
   
   return builtins;
-}
-
-async function execute(process) {
-
-  const { executeUserEntryPoint } = await import("../internal/modules/run_main.js");
-  const { Module } = await import("../module.js");
-  const console = Object.assign({}, await import("console"));
-  const tty = globalThis.tty;
-    
-  console.log = (...data) => {
-    process.stdout.write(data.join(",") + "\n");
-  }
-
-  Module._builtinModules = await bootstrapModules({ process, console, tty, module: Module });
-
-  //TODO God willing: expansion of args is important but I can wait for executables in here, God willing.
-  // In which case assuming a fs is present.
-  const entry = process.argv[1];
-  const exitPromise = waitForProcessExit(process);
-
-  try {
-
-    //Assume the tool writes to process.stdin? TGIMA.
-    executeUserEntryPoint(entry);
-    await exitPromise;
-
-  } catch (err) {
-
-    if (err) {
-      process.stdout.write(err + "\n");
-    }
-
-  } finally {
-
-    process.stdout.destroy();
-  }
 }

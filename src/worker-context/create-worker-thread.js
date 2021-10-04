@@ -12,7 +12,13 @@ export function createWorkerThreadProcess(command, options = {}) {
   const [processStdin, readablePortToWorker] = createWriterToWorker();
   const [processStdout, writablePortToWorker] = createReaderToWorker();
 
-  processStdout.on("end", () => worker.terminate());
+  //TODO God willing: figure out how to differentiate process getting destroyed on this end or other end.
+  // reason being if our side closes, we definitely want to send sigterm, God willing, and not terminate quickly.
+  // whereas if from other end, then no need to do sigterm. 
+  // alternative solution is to close on other side when they initiate the close (but since workers don't notify, it's not possible to tell it's closed)
+  processStdout.on("end", () => { 
+    worker.postMessage({ action: "SIGTERM" });
+  });
   
   const onMessage = options.onMessage;
   delete options.onMessage;
