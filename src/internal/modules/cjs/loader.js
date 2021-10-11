@@ -95,6 +95,8 @@ import {
   packageImportsResolve,
 } from "../esm/resolve.js";
 
+import { default as babel } from "@babel/standalone";
+
 const isWindows = process.platform === "win32";
 
 const relativeResolveCache = Object.create(null);
@@ -1062,34 +1064,56 @@ Module.prototype.require = function (id) {
 let resolvedArgv;
 let hasPausedEntry = false;
 
+const onDemandTransformESM = [
+  "Cannot use import statement outside a module",
+  "Unexpected token 'export'"
+];
+
 function wrapSafe(filename, content, cjsModuleInstance) {
   if (true) {
-    const wrapper = Module.wrap(content);
-    return vm.runInThisContext(wrapper, {
-      filename,
-      lineOffset: 0,
-      displayErrors: true,
-      importModuleDynamically: async (specifier) => {
-        const loader = asyncESM.ESMLoader;
-        return loader.import(specifier, normalizeReferrerURL(filename));
-      },
-    });
-  }
-  try {
-    return vm.compileFunction(
-      content,
-      ["exports", "require", "module", "__filename", "__dirname"],
-      {
+    try {
+      const wrapper = Module.wrap(content);
+
+      return vm.runInThisContext(wrapper, {
         filename,
-        importModuleDynamically(specifier) {
+        lineOffset: 0,
+        displayErrors: true,
+        importModuleDynamically: async (specifier) => {
           const loader = asyncESM.ESMLoader;
           return loader.import(specifier, normalizeReferrerURL(filename));
         },
+      });
+    } catch (err) {
+
+      if (err && err.name === "SyntaxError" && onDemandTransformESM.indexOf(err.message) !== -1) {
+        
+        content = babel.transform(content, {
+          presets: ["env"],
+          sourceType: "module",
+          filename,
+        })?.code;
+
+        const wrapper = Module.wrap(content);
+
+        try {
+          
+          return vm.runInThisContext(wrapper, {
+            filename,
+            lineOffset: 0,
+            displayErrors: true,
+            importModuleDynamically: async (specifier) => {
+              const loader = asyncESM.ESMLoader;
+              return loader.import(specifier, normalizeReferrerURL(filename));
+            },
+          });
+        
+        } catch (err) {
+
+          //Throw the original error for now.
+          throw err;
+        }
       }
-    );
-  } catch (err) {
-    if (process.mainModule === cjsModuleInstance) enrichCJSError(err);
-    throw err;
+    }
   }
 }
 
@@ -1167,8 +1191,6 @@ Module.prototype._compile = function (content, filename) {
   if (requireDepth === 0) statCache = null;
   return result;
 };
-
-import { transform, default as babel } from "@babel/standalone";
 
 // Native extension for .js
 Module._extensions[".js"] = function (module, filename) {
