@@ -8,27 +8,23 @@ export default class Process {
     this._stdout = stdout;
     this._stderr = stderr;
     this._argv = argv;
-    this._env = env;
+    this._env = env || {
+      PATH: "/bin;/usr/bin;"
+    };
+
+    this._title = "webterm"
 
     import("events").then(mod => EventEmitter = mod.default.EventEmitter);
     import("fs").then(mod => fs = mod.default);
     import("constants").then(mod => constants = mod.default);
   }
 
-  get fs() {
-    if (!this._fs) {
-      this._fs = fs;
-    }
-
-    return this._fs || {}
-  }
-
-  set fs(fs) {
-    this._fs = fs
-  }
-
   get title() {
-    return "browser";
+    return this._title;
+  }
+
+  set title(title) {
+    this._title = title;
   }
 
   get browser() {
@@ -36,10 +32,11 @@ export default class Process {
   }
 
   get env() {
-    return {
-      PATH: "/bin;/usr/bin;",
-      YARN_REGISTRY: "https://registry.npmjs.org"
-    };
+    return this._env;
+  }
+
+  set env(env) {
+    this._env = env;
   }
 
   get argv() {
@@ -133,11 +130,11 @@ export default class Process {
   }
 
   cwd() {
-    return this.fs.getCwd ? this.fs.getCwd() : "/";
+    return fs.getCwd ? fs.getCwd() : "/";
   }
 
   chdir() {
-    return this.fs.chdir && this.fs.chdir(...arguments)
+    return fs.chdir && fs.chdir(...arguments)
   }
 
   binding(lib) {
@@ -163,13 +160,7 @@ export default class Process {
 
   exit(code) {
     this._exitCode = code;
-
     this.emit("exit", code);
-    this.cleanup();
-  }
-
-  cleanup() {
-    this._argv = "";
   }
 
   get eventEmitter() {
