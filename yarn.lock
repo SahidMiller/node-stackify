@@ -859,10 +859,10 @@
   resolved "https://registry.yarnpkg.com/@darkwolf/primordials/-/primordials-1.2.1.tgz#3bca947f8b04a03301d2af8e356e4fd104ef1a27"
   integrity sha512-62loW0O1/Iu7ts8U9me7oI3p2g7HHtVib7ISkRcLpvZS1q0U8x03UPDKkScYYKJukDf3d2Ns27EKnW/HJbm8Ag==
 
-"@network-stackify/stack@1.1.3":
-  version "1.1.3"
-  resolved "https://registry.yarnpkg.com/@network-stackify/stack/-/stack-1.1.3.tgz#fc0950cd2dce804394e36e706623702afbd0b660"
-  integrity sha512-UL9poQ/1v/b8ZxxsYFYQZDmtA/ZoB1f+QvbJ3v8rSFHGXtlvs41e4T+OqnV3VmWFIWrByFNBiFSjN83mlBjc5A==
+"@network-stackify/stack@1.1.4":
+  version "1.1.4"
+  resolved "https://registry.yarnpkg.com/@network-stackify/stack/-/stack-1.1.4.tgz#665af6d9dab6b6dd8b034aa0608abfc9e829b768"
+  integrity sha512-YBBVJ7g+lxXPzV8L+vhK97i3dUYUWzEYDYQ7EE1kh+EDvRUkt7D85o4Hhjp4ZAbUqlVJyOEcXhUDrC2iJIm6RA==
   dependencies:
     "@network-stackify/ws" "^7.5.3"
     get-iterator "^1.0.2"
@@ -1358,15 +1358,7 @@ buffer-xor@^1.0.3:
   resolved "https://registry.yarnpkg.com/buffer-xor/-/buffer-xor-1.0.3.tgz#26e61ed1422fb70dd42e6e36729ed51d855fe8d9"
   integrity sha1-JuYe0UIvtw3ULm42cp7VHYVf6Nk=
 
-buffer@^6.0.3:
-  version "6.0.3"
-  resolved "https://registry.yarnpkg.com/buffer/-/buffer-6.0.3.tgz#2ace578459cc8fbe2a70aaa8f52ee63b6a74c6c6"
-  integrity sha512-FTiCpNxtwiZZHEZbcbTIcZjERVICn9yq/pDFkTl95/AxzD1naBctN7YO68riM/gLSDY7sdrMby8hofADYuuqOA==
-  dependencies:
-    base64-js "^1.3.1"
-    ieee754 "^1.2.1"
-
-"buffer@https://github.com/SahidMiller/buffer.git":
+buffer@^6.0.3, "buffer@https://github.com/SahidMiller/buffer.git":
   version "6.0.3"
   resolved "https://github.com/SahidMiller/buffer.git#ea3b145af5e9a251e634a55dc1783116601e1aa4"
   dependencies:
@@ -2379,9 +2371,9 @@ node-forge@^0.10.0:
   resolved "https://registry.yarnpkg.com/node-forge/-/node-forge-0.10.0.tgz#32dea2afb3e9926f02ee5ce8794902691a676bf3"
   integrity sha512-PPmu8eEeG9saEUvI97fm4OYxXVB6bFvyNTyiUOBichBpFG8A1Ljw3bY62+5oOjDEMHRnd0Y7HQ+x7uzxOzC6JA==
 
-"node-forge@https://github.com/githoniel/forge":
+"node-forge@git+https://github.com/githoniel/forge.git":
   version "0.7.6-dev"
-  resolved "https://github.com/githoniel/forge#b60656a5896fb70c83f22f8f7dd7ba17cc097b34"
+  resolved "git+https://github.com/githoniel/forge.git#b60656a5896fb70c83f22f8f7dd7ba17cc097b34"
 
 node-gyp-build@^4.2.0:
   version "4.2.3"
