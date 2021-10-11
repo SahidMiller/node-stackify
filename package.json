@@ -1,6 +1,6 @@
 {
   "name": "node-stackify",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Native nodejs modules for the browser. Includes a webpack plugin for shimming.",
   "keywords": [
     "nodejs",
