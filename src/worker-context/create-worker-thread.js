@@ -30,7 +30,7 @@ export function createWorkerThreadProcess(command, options = {}) {
       command,
       ...options
     },
-    [readablePortToWorker, writablePortToWorker, options.fsProxyPort]
+    [readablePortToWorker, writablePortToWorker]
   );
 
   worker.onmessage = onMessage;
