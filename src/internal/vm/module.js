@@ -248,10 +248,11 @@ const kDependencySpecifiers = Symbol('kDependencySpecifiers');
 const kNoError = Symbol('kNoError');
 
 class SourceTextModule extends Module {
-  #error = kNoError;
-  #statusOverride;
 
   constructor(sourceText, options = {}) {
+    this._error = kNoError;
+    this._statusOverride = undefined;
+    
     validateString(sourceText, 'sourceText');
     validateObject(options, 'options');
 
@@ -301,7 +302,7 @@ class SourceTextModule extends Module {
     });
 
     this[kLink] = async (linker) => {
-      this.#statusOverride = 'linking';
+      this._statusOverride = 'linking';
 
       const promises = this[kWrap].link(async (identifier, assert) => {
         const module = await linker(identifier, this, { assert });
@@ -327,10 +328,10 @@ class SourceTextModule extends Module {
           await PromiseAll(promises);
         }
       } catch (e) {
-        this.#error = e;
+        this._error = e;
         throw e;
       } finally {
-        this.#statusOverride = undefined;
+        this._statusOverride = undefined;
       }
     };
 
@@ -351,11 +352,11 @@ class SourceTextModule extends Module {
     if (this[kWrap] === undefined) {
       throw new ERR_VM_MODULE_NOT_MODULE();
     }
-    if (this.#error !== kNoError) {
+    if (this._error !== kNoError) {
       return 'errored';
     }
-    if (this.#statusOverride) {
-      return this.#statusOverride;
+    if (this._statusOverride) {
+      return this._statusOverride;
     }
     return super.status;
   }
@@ -364,8 +365,8 @@ class SourceTextModule extends Module {
     if (this[kWrap] === undefined) {
       throw new ERR_VM_MODULE_NOT_MODULE();
     }
-    if (this.#error !== kNoError) {
-      return this.#error;
+    if (this._error !== kNoError) {
+      return this._error;
     }
     return super.error;
   }
