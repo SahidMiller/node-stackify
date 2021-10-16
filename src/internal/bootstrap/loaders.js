@@ -191,13 +191,6 @@ const getOwn = (target, property, receiver) => {
  * used, in which case there is no compatibility guarantee about this class.
  */
 class NativeModule {
-  /**
-   * A map from the module IDs to the module instances.
-   * @type {Map<string, NativeModule>}
-   */
-  static map = new SafeMap(
-    ArrayPrototypeMap(moduleIds, (id) => [id, new NativeModule(id)])
-  );
 
   constructor(id) {
     this.filename = `${id}.js`;
@@ -222,26 +215,6 @@ class NativeModule {
      * @type {string[]|undefined}
      */
     this.exportKeys = undefined;
-  }
-
-  // To be called during pre-execution when --expose-internals is on.
-  // Enables the user-land module loader to access internal modules.
-  static exposeInternals() {
-    for (const { 0: id, 1: mod } of NativeModule.map) {
-      // Do not expose this to user land even with --expose-internals.
-      if (id !== loaderId) {
-        mod.canBeRequiredByUsers = true;
-      }
-    }
-  }
-
-  static exists(id) {
-    return NativeModule.map.has(id);
-  }
-
-  static canBeRequiredByUsers(id) {
-    const mod = NativeModule.map.get(id);
-    return mod && mod.canBeRequiredByUsers;
   }
 
   // Used by user-land module loaders to compile and load builtins.
@@ -323,6 +296,30 @@ class NativeModule {
     ArrayPrototypePush(moduleLoadList, `NativeModule ${id}`);
     return this.exports;
   }
+}
+
+NativeModule.map = new SafeMap(
+  ArrayPrototypeMap(moduleIds, (id) => [id, new NativeModule(id)])
+);
+
+// To be called during pre-execution when --expose-internals is on.
+// Enables the user-land module loader to access internal modules.
+NativeModule.exposeInternals = function() {
+  for (const { 0: id, 1: mod } of NativeModule.map) {
+    // Do not expose this to user land even with --expose-internals.
+    if (id !== loaderId) {
+      mod.canBeRequiredByUsers = true;
+    }
+  }
+}
+
+NativeModule.exists = function(id) {
+  return NativeModule.map.has(id);
+}
+
+NativeModule.canBeRequiredByUsers = function(id) {
+  const mod = NativeModule.map.get(id);
+  return mod && mod.canBeRequiredByUsers;
 }
 
 // Think of this as module.exports in this file even though it is not

@@ -3,11 +3,11 @@ import fs from "./index.js";
 import EventEmitter from "events";
 
 export class FSWatcher extends EventEmitter {
-  _timer; // Timer that keeps this task persistent.
 
   constructor(vol) {
     super();
 
+    this._timer = undefined; // Timer that keeps this task persistent.
     this._filename = "";
     this._steps = [];
     this._filenameEncoded = "";
