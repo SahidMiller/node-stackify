@@ -106,7 +106,7 @@ export default function bootstrap({ bootstrapFs, afterProcess, beforeExecution, 
     }
     
     //TODO God willing: hook for adding built in modules
-    Module._builtinModules = await bootstrapModules({ process, console, tty, module: Module, global });
+    Module._builtinModules = await bootstrapModules({ process, console, tty, module, global });
   
     //TODO God willing: expansion of args is important but I can wait for executables in here, God willing.
     // In which case assuming a fs is present.
@@ -131,6 +131,8 @@ export default function bootstrap({ bootstrapFs, afterProcess, beforeExecution, 
       
       const entryPath = Module._findPath(entry, (process.env.PATH || "").split(";").filter(Boolean), true);
 
+      if (!entryPath) throw new Error(`nodejs: ${entry} command not found\n`);
+      
       //Assume the tool writes to process.stdin? TGIMA.
       executeUserEntryPoint(entryPath);
       await exitPromise;
