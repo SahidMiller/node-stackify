@@ -103,20 +103,23 @@ const maybeOverridePrepareStackTrace = (globalThis, error, trace) => {
 // Lazily loaded
 let util;
 let assert;
+import("assert").then(mod => assert = mod.default);
 
 let internalUtilInspect = null;
+import("util").then(mod => internalUtilInspect = mod.default);
 function lazyInternalUtilInspect() {
-  if (!internalUtilInspect) {
-    internalUtilInspect = require("util");
-  }
   return internalUtilInspect;
 }
 
 let buffer;
+import("buffer").then(mod => buffer = mod.Buffer);
 function lazyBuffer() {
-  if (buffer === undefined) buffer = require("buffer").Buffer;
   return buffer;
 }
+
+let path;
+import("path").then(mod => path = mod.default);
+
 
 const addCodeToName = hideStackFrames(function addCodeToName(err, name, code) {
   // Set the stack
@@ -333,8 +336,6 @@ function E(sym, val, def, ...otherClasses) {
 function getMessage(key, args, self) {
   const msg = messages.get(key);
 
-  if (assert === undefined) assert = require("assert");
-
   if (typeof msg === "function") {
     assert(
       msg.length <= args.length, // Default options do not count.
@@ -359,15 +360,6 @@ function getMessage(key, args, self) {
 
 const captureLargerStackTrace = hideStackFrames(
   function captureLargerStackTrace(err) {
-    const stackTraceLimitIsWritable = isErrorStackTraceLimitWritable();
-    if (stackTraceLimitIsWritable) {
-      userStackTraceLimit = Error.stackTraceLimit;
-      Error.stackTraceLimit = Infinity;
-    }
-    Error.captureStackTrace(err);
-    // Reset the limit
-    if (stackTraceLimitIsWritable) Error.stackTraceLimit = userStackTraceLimit;
-
     return err;
   }
 );
@@ -389,7 +381,6 @@ const errnoException = hideStackFrames(function errnoException(
   // getSystemErrorName(err) to guard against invalid arguments from users.
   // This can be replaced with [ code ] = errmap.get(err) when this method
   // is no longer exposed to user land.
-  if (util === undefined) util = require("util");
   const code = util.getSystemErrorName(err);
   const message = original
     ? `${syscall} ${code} ${original}`
@@ -429,7 +420,6 @@ const exceptionWithHostPort = hideStackFrames(function exceptionWithHostPort(
   // getSystemErrorName(err) to guard against invalid arguments from users.
   // This can be replaced with [ code ] = errmap.get(err) when this method
   // is no longer exposed to user land.
-  if (util === undefined) util = require("util");
   const code = util.getSystemErrorName(err);
   let details = "";
   if (port && port > 0) {
@@ -1488,7 +1478,6 @@ E(
   (filename, parentPath = null, packageJsonPath = null) => {
     let msg = `Must use import to load ES Module: ${filename}`;
     if (parentPath && packageJsonPath) {
-      const path = require("path");
       const basename =
         path.basename(filename) === path.basename(parentPath)
           ? filename
