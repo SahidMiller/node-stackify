@@ -20,7 +20,11 @@ import buffer from "buffer";
 const {
   Buffer: { isBuffer },
 } = buffer;
-import { inspect, formatWithOptions } from "util";
+import { inspect, format } from "util";
+const formatWithOptions = function(options, args) {
+  return format(args);
+}
+
 import { types } from "util";
 const { isTypedArray, isSet, isMap, isSetIterator, isMapIterator } = types;
 

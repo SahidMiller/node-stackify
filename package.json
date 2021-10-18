@@ -26,8 +26,8 @@
     },
     "./buffer": "./src/reexports/buffer.js",
     "./console": {
-      "import": "./src/reexports/console.js",
-      "require": "./src/reexports/console.cjs"
+      "import": "./src/console.js",
+      "require": "./src/console.js"
     },
     "./constants": "./src/constants.js",
     "./crypto": "./src/crypto.js",
@@ -58,7 +58,6 @@
     "./sys": "./src/reexports/util.js",
     "./timers": "./src/reexports/timers.js",
     "./tls": "./src/reexports/tls.js",
-    "./tty": "./src/reexports/tty.js",
     "./url": "./src/url.js",
     "./util": "./src/reexports/util.js",
     "./vm": "./src/reexports/vm.js",

@@ -95,15 +95,8 @@ export default function bootstrap({ bootstrapFs, afterProcess, beforeExecution, 
     const module = await import("../module.js");
     
     const { Module } = module;
-    const console = Object.assign({}, await import("console"));
-      
-    console.log = (...data) => {
-      process.stdout.write(data.join(",") + "\n");
-    }
-
-    console.error = (...data) => {
-      process.stdout.write(data.join(",") + "\n");
-    }
+    const { Console } = await import("console")
+    const console = new Console(process.stdout);
     
     //TODO God willing: hook for adding built in modules
     Module._builtinModules = await bootstrapModules({ process, console, tty, module, global });
