@@ -31,14 +31,13 @@ export default function bootstrap({ bootstrapFs, afterProcess, beforeExecution, 
 
     //TODO God willing: get terminal columns and rows God willing;
     const { 
-      command, 
+      command = "", 
       readablePort, 
       writablePort, 
-      dimensions, 
+      dimensions = {}, 
       pid,
-      stdinIsTTY,
-      stdoutIsTTY,
-      argv,
+      stdinIsTTY = false,
+      stdoutIsTTY = false,
       env,
     } = event.data;
 
@@ -73,8 +72,7 @@ export default function bootstrap({ bootstrapFs, afterProcess, beforeExecution, 
     const process = globalThis.process = new Process({
       stdin, 
       stdout, 
-      stderr: stdout,
-      argv
+      stderr: stdout
     });
 
     if (env) process.env = env;
