@@ -82,7 +82,7 @@
     "@babel/register": "^7.15.3",
     "@babel/standalone": "^7.15.3",
     "@darkwolf/primordials": "^1.2.1",
-    "@network-stackify/stack": "1.1.4",
+    "@network-stackify/stack": "1.1.5",
     "acorn": "^8.5.0",
     "acorn-walk": "^8.2.0",
     "browser-process-hrtime": "^1.0.0",
