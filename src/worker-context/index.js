@@ -1,4 +1,4 @@
-export default function bootstrap({ bootstrapFs, afterProcess, beforeExecution, sigtermTimeout = 5000 }) {
+export default function bootstrap({ bootstrapFs, beforeProcess, afterProcess, beforeExecution, sigtermTimeout = 5000 }) {
   
   if (!bootstrapFs) {
     throw "Invalid options. options.bootstrapFs callback is required."
@@ -48,24 +48,19 @@ export default function bootstrap({ bootstrapFs, afterProcess, beforeExecution, 
     //TODO God willing: legit navigation and other polyfills and web-worker-proxies for window
     globalThis.window = globalThis;
     
+    if (beforeProcess) {
+      await beforeProcess(event.data);
+    }
+
     const { bootstrapStdin, bootstrapStdout } = await import("./bootstrap-stdio.js");
 
-    const stdin = bootstrapStdin(readablePort, {
-      isTTY: stdinIsTTY,
-      columns: dimensions.columns,
-      rows: dimensions.rows
-    });
-
+    const stdin = bootstrapStdin(readablePort, { isTTY: stdinIsTTY });
     const stdout = bootstrapStdout(writablePort, {
       isTTY: stdoutIsTTY,
       columns: dimensions.columns,
       rows: dimensions.rows
     });
     
-    const { bootstrap: bootstrapTTY } = await import("./bootstrap-tty.cjs");
-    const tty = bootstrapTTY(self);
-    globalThis.tty = tty
-
     const { default: Process } = await import("../process/index.js");
     
     //TODO God willing: don't start/load whatever we're running until this we get our stdout, God willing.
@@ -96,9 +91,6 @@ export default function bootstrap({ bootstrapFs, afterProcess, beforeExecution, 
     const { Console } = await import("console")
     const console = new Console(process.stdout);
     
-    //TODO God willing: hook for adding built in modules
-    Module._builtinModules = await bootstrapModules({ process, console, tty, module, global });
-  
     //TODO God willing: expansion of args is important but I can wait for executables in here, God willing.
     // In which case assuming a fs is present.
     const entry = process.argv[1];
@@ -115,15 +107,18 @@ export default function bootstrap({ bootstrapFs, afterProcess, beforeExecution, 
     });
 
     try {
-      
-      if (beforeExecution) {
-        await beforeExecution(module);
-      }
-      
+          
       const entryPath = Module._findPath(entry, (process.env.PATH || "").split(";").filter(Boolean), true);
 
       if (!entryPath) throw new Error(`nodejs: ${entry} command not found\n`);
-      
+
+      if (beforeExecution) {
+        await beforeExecution(entryPath, module);
+      }
+
+      //TODO God willing: hook for adding built in modules
+      Module._builtinModules = await bootstrapModules({ process, console, module, global, ...Module._builtinModules });
+
       //Assume the tool writes to process.stdin? TGIMA.
       executeUserEntryPoint(entryPath);
       await exitPromise;

@@ -58,6 +58,7 @@
     "./sys": "./src/reexports/util.js",
     "./timers": "./src/reexports/timers.js",
     "./tls": "./src/reexports/tls.js",
+    "./tty": "./src/tty.js",
     "./url": "./src/url.js",
     "./util": "./src/reexports/util.js",
     "./vm": "./src/reexports/vm.js",

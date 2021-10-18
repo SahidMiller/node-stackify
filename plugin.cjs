@@ -51,6 +51,7 @@ const resolves = {
   sys: path.resolve(__dirname, "./src/reexports/util.js"),
   timers: path.resolve(__dirname, "./src/reexports/timers.js"),
   tls: path.resolve(__dirname, "./src/reexports/tls.js"),
+  tty: path.resolve(__dirname, "./src/tty.js"),
   url: path.resolve(__dirname, "./src/url.js"),
   util: path.resolve(__dirname, "./src/reexports/util.js"),
   vm: path.resolve(__dirname, "./src/reexports/vm.js"),

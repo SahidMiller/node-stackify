@@ -26,6 +26,7 @@ module.exports = function getBuiltins(additional = {}) {
     net: require("net"),
     tls: require("tls"),
     dns: require("dns"),
+    tty: require("tty"),
     ...additional,
   };
 }
