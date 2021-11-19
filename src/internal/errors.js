@@ -9,6 +9,18 @@
 // change. The NodeError classes here all expose a `code` property whose
 // value statically and permanently identifies the error. While the error
 // message may change, the code should not.
+import {
+  Error,
+  MapPrototypeGet,
+  Number,
+  ObjectKeys,
+  RangeError,
+  String,
+  Symbol,
+  SyntaxError,
+  TypeError,
+  URIError,
+} from "@darkwolf/primordials";
 
 const messages = new Map();
 const codes = {};
@@ -101,12 +113,20 @@ const maybeOverridePrepareStackTrace = (globalThis, error, trace) => {
 };
 
 // Lazily loaded
-let util;
 let assert;
 import("assert").then(mod => assert = mod.default);
 
+let util;
 let internalUtilInspect = null;
-import("util").then(mod => internalUtilInspect = mod.default);
+
+import("./util.js").then(mod => {
+  util = mod.default
+});
+
+import("util").then(mod => {
+  internalUtilInspect = util.inspect
+});
+
 function lazyInternalUtilInspect() {
   return internalUtilInspect;
 }
@@ -358,6 +378,195 @@ function getMessage(key, args, self) {
   return Reflect.apply(lazyInternalUtilInspect().format, null, args);
 }
 
+const uvUnmappedError = ['UNKNOWN', 'unknown error'];
+const _uvSystemErrors = {
+  '-4093': [ 'E2BIG', 'argument list too long' ],
+  '-4092': [ 'EACCES', 'permission denied' ],
+  '-4091': [ 'EADDRINUSE', 'address already in use' ],
+  '-4090': [ 'EADDRNOTAVAIL', 'address not available' ],
+  '-4089': [ 'EAFNOSUPPORT', 'address family not supported' ],
+  '-4088': [ 'EAGAIN', 'resource temporarily unavailable' ],
+  '-3000': [ 'EAI_ADDRFAMILY', 'address family not supported' ],
+  '-3001': [ 'EAI_AGAIN', 'temporary failure' ],
+  '-3002': [ 'EAI_BADFLAGS', 'bad ai_flags value' ],
+  '-3013': [ 'EAI_BADHINTS', 'invalid value for hints' ],
+  '-3003': [ 'EAI_CANCELED', 'request canceled' ],
+  '-3004': [ 'EAI_FAIL', 'permanent failure' ],
+  '-3005': [ 'EAI_FAMILY', 'ai_family not supported' ],
+  '-3006': [ 'EAI_MEMORY', 'out of memory' ],
+  '-3007': [ 'EAI_NODATA', 'no address' ],
+  '-3008': [ 'EAI_NONAME', 'unknown node or service' ],
+  '-3009': [ 'EAI_OVERFLOW', 'argument buffer overflow' ],
+  '-3014': [ 'EAI_PROTOCOL', 'resolved protocol is unknown' ],
+  '-3010': [ 'EAI_SERVICE', 'service not available for socket type' ],
+  '-3011': [ 'EAI_SOCKTYPE', 'socket type not supported' ],
+  '-4084': [ 'EALREADY', 'connection already in progress' ],
+  '-4083': [ 'EBADF', 'bad file descriptor' ],
+  '-4082': [ 'EBUSY', 'resource busy or locked' ],
+  '-4081': [ 'ECANCELED', 'operation canceled' ],
+  '-4080': [ 'ECHARSET', 'invalid Unicode character' ],
+  '-4079': [ 'ECONNABORTED', 'software caused connection abort' ],
+  '-4078': [ 'ECONNREFUSED', 'connection refused' ],
+  '-4077': [ 'ECONNRESET', 'connection reset by peer' ],
+  '-4076': [ 'EDESTADDRREQ', 'destination address required' ],
+  '-4075': [ 'EEXIST', 'file already exists' ],
+  '-4074': [ 'EFAULT', 'bad address in system call argument' ],
+  '-4036': [ 'EFBIG', 'file too large' ],
+  '-4073': [ 'EHOSTUNREACH', 'host is unreachable' ],
+  '-4072': [ 'EINTR', 'interrupted system call' ],
+  '-4071': [ 'EINVAL', 'invalid argument' ],
+  '-4070': [ 'EIO', 'i/o error' ],
+  '-4069': [ 'EISCONN', 'socket is already connected' ],
+  '-4068': [ 'EISDIR', 'illegal operation on a directory' ],
+  '-4067': [ 'ELOOP', 'too many symbolic links encountered' ],
+  '-4066': [ 'EMFILE', 'too many open files' ],
+  '-4065': [ 'EMSGSIZE', 'message too long' ],
+  '-4064': [ 'ENAMETOOLONG', 'name too long' ],
+  '-4063': [ 'ENETDOWN', 'network is down' ],
+  '-4062': [ 'ENETUNREACH', 'network is unreachable' ],
+  '-4061': [ 'ENFILE', 'file table overflow' ],
+  '-4060': [ 'ENOBUFS', 'no buffer space available' ],
+  '-4059': [ 'ENODEV', 'no such device' ],
+  '-4058': [ 'ENOENT', 'no such file or directory' ],
+  '-4057': [ 'ENOMEM', 'not enough memory' ],
+  '-4056': [ 'ENONET', 'machine is not on the network' ],
+  '-4035': [ 'ENOPROTOOPT', 'protocol not available' ],
+  '-4055': [ 'ENOSPC', 'no space left on device' ],
+  '-4054': [ 'ENOSYS', 'function not implemented' ],
+  '-4053': [ 'ENOTCONN', 'socket is not connected' ],
+  '-4052': [ 'ENOTDIR', 'not a directory' ],
+  '-4051': [ 'ENOTEMPTY', 'directory not empty' ],
+  '-4050': [ 'ENOTSOCK', 'socket operation on non-socket' ],
+  '-4049': [ 'ENOTSUP', 'operation not supported on socket' ],
+  '-4048': [ 'EPERM', 'operation not permitted' ],
+  '-4047': [ 'EPIPE', 'broken pipe' ],
+  '-4046': [ 'EPROTO', 'protocol error' ],
+  '-4045': [ 'EPROTONOSUPPORT', 'protocol not supported' ],
+  '-4044': [ 'EPROTOTYPE', 'protocol wrong type for socket' ],
+  '-4034': [ 'ERANGE', 'result too large' ],
+  '-4043': [ 'EROFS', 'read-only file system' ],
+  '-4042': [ 'ESHUTDOWN', 'cannot send after transport endpoint shutdown' ],
+  '-4041': [ 'ESPIPE', 'invalid seek' ],
+  '-4040': [ 'ESRCH', 'no such process' ],
+  '-4039': [ 'ETIMEDOUT', 'connection timed out' ],
+  '-4038': [ 'ETXTBSY', 'text file is busy' ],
+  '-4037': [ 'EXDEV', 'cross-device link not permitted' ],
+  '-4094': [ 'UNKNOWN', 'unknown error' ],
+  '-4095': [ 'EOF', 'end of file' ],
+  '-4033': [ 'ENXIO', 'no such device or address' ],
+  '-4032': [ 'EMLINK', 'too many links' ],
+  '-4031': [ 'EHOSTDOWN', 'host is down' ],
+  '-4030': [ 'EREMOTEIO', 'remote I/O error' ],
+  '-4029': [ 'ENOTTY', 'inappropriate ioctl for device' ],
+  '-4028': [ 'EFTYPE', 'inappropriate file type or format' ],
+  '-4027': [ 'EILSEQ', 'illegal byte sequence' ]
+}
+
+const systemErrorMap = Object.keys(_uvSystemErrors).reduce((map, current) => {
+  const key = Number(current)
+  map.set(key, _uvSystemErrors[current]);
+  return map;
+}, new Map());
+
+function uvErrmapGet(name) {
+  return MapPrototypeGet(systemErrorMap, name);
+}
+
+/**
+ * This creates an error compatible with errors produced in the C++
+ * function UVException using a context object with data assembled in C++.
+ * The goal is to migrate them to ERR_* errors later when compatibility is
+ * not a concern.
+ *
+ * @param {Object} ctx
+ * @returns {Error}
+ */
+ const uvException = hideStackFrames(function uvException(ctx) {
+  const { 0: code, 1: uvmsg } = uvErrmapGet(ctx.errno) || uvUnmappedError;
+  let message = `${code}: ${ctx.message || uvmsg}, ${ctx.syscall}`;
+
+  let path;
+  let dest;
+  if (ctx.path) {
+    path = ctx.path.toString();
+    message += ` '${path}'`;
+  }
+  if (ctx.dest) {
+    dest = ctx.dest.toString();
+    message += ` -> '${dest}'`;
+  }
+
+  // Reducing the limit improves the performance significantly. We do not lose
+  // the stack frames due to the `captureStackTrace()` function that is called
+  // later.
+  const tmpLimit = Error.stackTraceLimit;
+  if (isErrorStackTraceLimitWritable()) Error.stackTraceLimit = 0;
+  // Pass the message to the constructor instead of setting it on the object
+  // to make sure it is the same as the one created in C++
+  // eslint-disable-next-line no-restricted-syntax
+  const err = new Error(message);
+  if (isErrorStackTraceLimitWritable()) Error.stackTraceLimit = tmpLimit;
+
+  for (const prop of ObjectKeys(ctx)) {
+    if (prop === 'message' || prop === 'path' || prop === 'dest') {
+      continue;
+    }
+    err[prop] = ctx[prop];
+  }
+
+  err.code = code;
+  if (path) {
+    err.path = path;
+  }
+  if (dest) {
+    err.dest = dest;
+  }
+
+  return captureLargerStackTrace(err);
+});
+
+/**
+ * This creates an error compatible with errors produced in the C++
+ * This function should replace the deprecated
+ * `exceptionWithHostPort()` function.
+ *
+ * @param {number} err - A libuv error number
+ * @param {string} syscall
+ * @param {string} address
+ * @param {number} [port]
+ * @returns {Error}
+ */
+ const uvExceptionWithHostPort = hideStackFrames(
+  function uvExceptionWithHostPort(err, syscall, address, port) {
+    const { 0: code, 1: uvmsg } = uvErrmapGet(err) || uvUnmappedError;
+    const message = `${syscall} ${code}: ${uvmsg}`;
+    let details = '';
+
+    if (port && port > 0) {
+      details = ` ${address}:${port}`;
+    } else if (address) {
+      details = ` ${address}`;
+    }
+
+    // Reducing the limit improves the performance significantly. We do not
+    // lose the stack frames due to the `captureStackTrace()` function that
+    // is called later.
+    const tmpLimit = Error.stackTraceLimit;
+    if (isErrorStackTraceLimitWritable()) Error.stackTraceLimit = 0;
+    // eslint-disable-next-line no-restricted-syntax
+    const ex = new Error(`${message}${details}`);
+    if (isErrorStackTraceLimitWritable()) Error.stackTraceLimit = tmpLimit;
+    ex.code = code;
+    ex.errno = err;
+    ex.syscall = syscall;
+    ex.address = address;
+    if (port) {
+      ex.port = port;
+    }
+
+    return captureLargerStackTrace(ex);
+  });
+
 const captureLargerStackTrace = hideStackFrames(
   function captureLargerStackTrace(err) {
     return err;
@@ -548,6 +757,7 @@ class AbortError extends Error {
 import * as self from "./errors.js";
 export default self;
 export {
+  systemErrorMap,
   addCodeToName, // Exported for NghttpError
   codes,
   errnoException,
@@ -557,6 +767,9 @@ export {
   isErrorStackTraceLimitWritable,
   isStackOverflowError,
   connResetException,
+  uvErrmapGet,
+  uvException,
+  uvExceptionWithHostPort,
   SystemError,
   AbortError,
   // This is exported only to facilitate testing.
