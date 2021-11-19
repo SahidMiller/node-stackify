@@ -2,7 +2,7 @@
 //TODO God willing: blocklist and Server could be useful.
 
 import { Server, createServer, normalizeArgs as normalizeServerArgs } from "./net/server.js";
-import { Socket, connect } from "./net/internals/socket.js.js";
+import { Socket, connect } from "./net/socket.js";
 export * from "./internal/net.js";
 
 import * as self from "./net.js";
