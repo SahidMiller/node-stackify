@@ -45,9 +45,6 @@ export default function bootstrap({ bootstrapFs, beforeProcess, afterProcess, be
     
     globalThis.fs = fs
     
-    //TODO God willing: legit navigation and other polyfills and web-worker-proxies for window
-    globalThis.window = globalThis;
-    
     if (beforeProcess) {
       await beforeProcess(event.data);
     }
@@ -70,17 +67,12 @@ export default function bootstrap({ bootstrapFs, beforeProcess, afterProcess, be
       stderr: stdout
     });
 
-    if (env) process.env = env;
-
-    //TODO God willing: run "bootstrapPath" and getArgs here for now since we can't rely on fs access in child_process.js launcher yet.
-    const { bootstrapPath } = await import("./executables.js");
-    await bootstrapPath();
-    
+    if (env) process.env = env;    
     process.argv = ["node", ...(command.split(" "))]; //getArgs(command);
 
     //TODO God willing: could also move it to client api hooks, God willing
     if (afterProcess) {
-      await afterProcess(process);
+      await afterProcess(process, event.data);
     }
 
     //Delay setting up worker until fs is setup globally
