@@ -25,6 +25,13 @@ function spawn(command, args, options) {
   const [stdin, stdout, worker] = createWorkerThreadProcess(command, options);
   const process = new Process({ stdin, stdout, stderr: stdout });
   process.worker = worker;
+
+  //TODO God willing: if closed from this side, then kill the process?
+  // but if closed on remote side, then make sure to get exit code ? (not sure how to do error codes)
+  stdout.on('close', () => {
+    process.emit('close', 0);
+  })
+
   return process;
 }
 
