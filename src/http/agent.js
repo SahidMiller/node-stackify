@@ -23,19 +23,15 @@
 
 import { createConnection as _createConnection, isIP } from "net";
 import EventEmitter from "events";
-import validators from "../internal/validators.js";
-import errors from "../internal/errors.js"
+import { validateNumber, validateOneOf, validateString } from "../internal/validators.js";
+import { codes } from "../internal/errors.js"
 
 import { debuglog } from "util"
 let debug = debuglog("http", (fn) => {
   debug = fn;
 });
 
-const {
-  codes: { ERR_OUT_OF_RANGE },
-} = errors;
-
-const { validateNumber, validateOneOf, validateString } = validators;
+const { ERR_OUT_OF_RANGE } = codes
 
 const kOnKeylog = Symbol("onkeylog");
 const kRequestOptions = Symbol("requestOptions");

@@ -23,13 +23,13 @@
 
 import { Server as _Server, connect } from "tls";
 
-import { Agent as HttpAgent } from "./http/common/agent.js";
-import { ClientRequest } from "./http/common/client.js";
+import { Agent as HttpAgent } from "./http/agent.js";
+import { ClientRequest } from "./http/client.js";
 import {
   storeHTTPOptions,
   _connectionListener,
   Server as __Server,
-} from "./http/common/server.js";
+} from "./http/server.js";
 
 import {
   urlToHttpOptions,

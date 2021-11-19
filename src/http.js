@@ -21,20 +21,20 @@
 
 "use strict";
 
-import { Agent as _Agent, globalAgent } from "./common/agent.js";
-import { ClientRequest } from "./common/client.js";
-import { IncomingMessage } from "./common/incoming.js";
+import { Agent as _Agent, globalAgent } from "./http/agent.js";
+import { ClientRequest } from "./http/client.js";
+import { IncomingMessage } from "./http/incoming.js";
 import {
   validateHeaderName,
   validateHeaderValue,
   OutgoingMessage,
-} from "./common/outgoing.js";
+} from "./http/outgoing.js";
 import {
   _connectionListener,
   STATUS_CODES,
   Server,
   ServerResponse,
-} from "./common/server.js";
+} from "./http/server.js";
 
 let maxHeaderSize;
 

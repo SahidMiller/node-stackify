@@ -1,7 +1,7 @@
-import rootCertificates from "./tls/internals/rootCertificates.js";
-import { checkServerIdentity } from "./tls/internals/checkServerIdentity.js";
-import { TLSSocket, connect } from "./tls/internals/socket.js";
-import { Server, createServer } from "./tls/internals/server.js";
+import rootCertificates from "./tls/rootCertificates.js";
+import { checkServerIdentity } from "./tls/checkServerIdentity.js";
+import { TLSSocket, connect } from "./tls/socket.js";
+import { Server, createServer } from "./tls/server.js";
 
 import * as self from "./tls.js";
 

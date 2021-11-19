@@ -20,6 +20,7 @@
   "main": "./index.js",
   "type": "module",
   "exports": {
+    "./internal/*": "./src/internal/",
     "./assert": {
       "import": "./src/reexports/assert.js",
       "require": "./src/reexports/assert.cjs"
@@ -93,11 +94,14 @@
     "esm-loader": "^0.1.0",
     "executable": "^4.1.1",
     "filter-obj": "^2.0.2",
+    "http-parser-js": "^0.5.3",
     "js-md4": "^0.3.2",
+    "node-forge": "^0.10.0",
     "node-inspect-extracted": "^1.0.8",
     "node-polyfill-webpack-plugin": "^1.1.4",
     "querystring": "^0.2.1",
     "remote-worker-streams": "0.0.2",
+    "tr46": "^3.0.0",
     "url": "^0.11.0",
     "urlite": "^3.0.0",
     "virtualfs": "SahidMiller/js-virtualfs",
