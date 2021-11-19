@@ -11,8 +11,27 @@ export default class Process {
     this._env = env || {
       PATH: "/bin;/usr/bin;"
     };
-
+    
     this._title = "webterm"
+    this._execPath = "/"
+    this._browser = true
+
+    this._version = ""
+    this._versions = { node: "14.15.1" }
+    this._platform = "linux"
+    this._release = {
+      name: "node",
+      lts: "",
+      sourceUrl: "",
+      libUrl: ""
+    }
+    this._memoryUsage = {
+      rss: 28241920,
+      heapTotal: 5308416,
+      heapUsed: 3505880,
+      external: 1633217,
+      arrayBuffers: 337087,
+    };
 
     import("events").then(mod => EventEmitter = mod.default.EventEmitter);
     import("fs").then(mod => fs = mod.default);
@@ -28,7 +47,7 @@ export default class Process {
   }
 
   get browser() {
-    return true;
+    return this._browser;
   }
 
   get env() {
@@ -57,7 +76,7 @@ export default class Process {
 
   get execPath() {
     //TODO God willing: not sure about this part or why it's showing up now
-    return "/";
+    return this._execPath;
   }
 
   get stdin() {
@@ -99,34 +118,23 @@ export default class Process {
   }
 
   get platform() {
-    return "linux";
+    return this._platform;
   }
 
   get version() {
-    return "";
+    return this._version;
   }
 
   get versions() {
-    return { node: "14.15.1" };
+    return this._versions;
   }
 
   get release() {
-    return {
-      name: "node",
-      lts: "",
-      sourceUrl: "",
-      libUrl: ""
-    }
+    return this._release;
   }
 
   memoryUsage() {
-    return {
-      rss: 28241920,
-      heapTotal: 5308416,
-      heapUsed: 3505880,
-      external: 1633217,
-      arrayBuffers: 337087,
-    };
+    return this._memoryUsage
   }
 
   cwd() {
