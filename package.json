@@ -20,7 +20,7 @@
   "main": "./index.js",
   "type": "module",
   "exports": {
-    "./internal/*": "./src/internal/",
+    "./internal/*": "./src/internal/*",
     "./assert": {
       "import": "./src/reexports/assert.js",
       "require": "./src/reexports/assert.cjs"
