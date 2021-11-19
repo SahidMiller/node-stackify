@@ -30,8 +30,9 @@ import {
 import {
   hideStackFrames,
   codes,
-  // uvErrmapGet,
+  uvErrmapGet,
   overrideStackTrace,
+  systemErrorMap
 } from "./errors.js";
 
 const { ERR_INVALID_ARG_TYPE, ERR_NO_CRYPTO, ERR_UNKNOWN_SIGNAL } = codes;
@@ -306,7 +307,7 @@ function getSystemErrorName(err) {
 }
 
 function getSystemErrorMap() {
-  return lazyUv().getErrorMap();
+  return systemErrorMap;
 }
 
 const kCustomPromisifiedSymbol = SymbolFor("nodejs.util.promisify.custom");
@@ -507,3 +508,6 @@ export {
   kIsEncodingSymbol,
   kVmBreakFirstLineSymbol,
 };
+
+import * as mySelf from "./util.js"
+export default mySelf
