@@ -171,6 +171,10 @@ export default class Process {
     this.emit("exit", code);
   }
 
+  kill() {
+    process.stdout.destroy();
+  }
+
   get eventEmitter() {
     if (!this._eventEmitter) {
       //TODO God willing: return a proxy that queues in the meantime? TGIMA.
