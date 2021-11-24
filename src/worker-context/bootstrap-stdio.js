@@ -19,11 +19,21 @@ export function bootstrapStdin(readablePort, options) {
   }
 }
 
+import { Writable } from "stream";
+
 export function bootstrapStdout(writablePort, options) {
   options = options || {}
   const { columns, rows, isTTY = false } = options;
-  const writableStream = createWriterToClient(writablePort);
-
+  const writer = createWriterToClient(writablePort);
+  const writableStream = Writable({
+    write: (chunk, enc, done) => {
+      self.postMessage({ action: "TTY_OUT", payload: chunk });
+      done();
+    },
+    destroy: () => {
+      writer.destroy()
+    }
+  })
   if (isTTY) {
 
     return new WriteStream(1, {

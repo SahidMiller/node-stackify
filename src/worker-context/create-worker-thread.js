@@ -38,7 +38,16 @@ export function createWorkerThreadProcess(command, options = {}) {
     [readablePortToWorker, writablePortToWorker]
   );
 
-  worker.onmessage = onMessage
+  worker.onmessage = onMessage || ((e) => {
+    if (e.data.action === "TTY_OUT") {
+      processStdout.push(Buffer.from(e.data.payload))
+      return;
+    }
+
+    if (e.data.transferables) {
+      self.postMessage(e.data, e.data.transferables)
+    }
+  });
 
   return [processStdin, processStdout, worker]
 }
