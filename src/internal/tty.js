@@ -103,7 +103,7 @@ function warnOnDeactivatedColors(env) {
 // The `getColorDepth` API got inspired by multiple sources such as
 // https://github.com/chalk/supports-color,
 // https://github.com/isaacs/color-support.
-function getColorDepth(env = process.env) {
+function getColorDepth(env = globalThis.process.env) {
   // Use level 0-3 to support the same levels as `chalk` does. This is done for
   // consistency throughout the ecosystem.
   if (env.FORCE_COLOR !== undefined) {

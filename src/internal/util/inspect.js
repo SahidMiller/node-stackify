@@ -115,7 +115,7 @@ const {
   ERR_INVALID_ARG_TYPE
 } = codes
 
-import { types } from "util"
+import types from "./types.js"
 
 const {
   isAsyncFunction,
@@ -144,7 +144,8 @@ const {
   isBigIntObject,
 } = types;
 
-import assert from "assert";
+let assert
+import("assert").then((mod) => (assert = mod));
 
 // import { NativeModule } from '../bootstrap/loaders'
 import { validateObject } from "../validators.js";
@@ -741,15 +742,6 @@ function formatValue(ctx, value, recurseTimes, typedArray) {
 
   // Memorize the context for custom inspection on proxies.
   const context = value;
-  // Always check for proxies to prevent side effects and to prevent triggering
-  // any proxy handlers.
-  const proxy = getProxyDetails(value, !!ctx.showProxy);
-  if (proxy !== undefined) {
-    if (ctx.showProxy) {
-      return formatProxy(ctx, proxy, recurseTimes);
-    }
-    value = proxy;
-  }
 
   // Provide a hook for user-specified inspect functions.
   // Check that value is an object with an inspect function on it.
@@ -763,8 +755,7 @@ function formatValue(ctx, value, recurseTimes, typedArray) {
       // This makes sure the recurseTimes are reported as before while using
       // a counter internally.
       const depth = ctx.depth === null ? null : ctx.depth - recurseTimes;
-      const isCrossContext =
-        proxy !== undefined || !(context instanceof Object);
+      const isCrossContext = !(context instanceof Object);
       const ret = FunctionPrototypeCall(
         maybeCustom, context, depth, getUserOptions(ctx, isCrossContext));
       // If the custom inspection method returned `this`, don't go into

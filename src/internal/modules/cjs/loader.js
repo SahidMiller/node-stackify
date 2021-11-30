@@ -95,6 +95,7 @@ import {
   packageImportsResolve,
 } from "../esm/resolve.js";
 
+//Aroung 4MB!
 import { default as babel } from "@babel/standalone";
 
 const isWindows = process.platform === "win32";
@@ -1070,48 +1071,49 @@ const onDemandTransformESM = [
 ];
 
 function wrapSafe(filename, content, cjsModuleInstance) {
-  if (true) {
-    try {
+  try {
+    const wrapper = Module.wrap(content);
+
+    return vm.runInThisContext(wrapper, {
+      filename,
+      lineOffset: 0,
+      displayErrors: true,
+      importModuleDynamically: async (specifier) => {
+        const loader = asyncESM.ESMLoader;
+        return loader.import(specifier, normalizeReferrerURL(filename));
+      },
+    });
+  } catch (err) {
+    const isEsmError = err && err.name === "SyntaxError" && onDemandTransformESM.indexOf(err.message) !== -1;
+
+    if (!isEsmError) {
+      throw err;
+    } else if (isEsmError) {
+      
+      content = babel.transform(content, {
+        presets: ["env"],
+        sourceType: "module",
+        filename,
+      })?.code;
+
       const wrapper = Module.wrap(content);
 
-      return vm.runInThisContext(wrapper, {
-        filename,
-        lineOffset: 0,
-        displayErrors: true,
-        importModuleDynamically: async (specifier) => {
-          const loader = asyncESM.ESMLoader;
-          return loader.import(specifier, normalizeReferrerURL(filename));
-        },
-      });
-    } catch (err) {
-
-      if (err && err.name === "SyntaxError" && onDemandTransformESM.indexOf(err.message) !== -1) {
+      try {
         
-        content = babel.transform(content, {
-          presets: ["env"],
-          sourceType: "module",
+        return vm.runInThisContext(wrapper, {
           filename,
-        })?.code;
+          lineOffset: 0,
+          displayErrors: true,
+          importModuleDynamically: async (specifier) => {
+            const loader = asyncESM.ESMLoader;
+            return loader.import(specifier, normalizeReferrerURL(filename));
+          },
+        });
+      
+      } catch (err) {
 
-        const wrapper = Module.wrap(content);
-
-        try {
-          
-          return vm.runInThisContext(wrapper, {
-            filename,
-            lineOffset: 0,
-            displayErrors: true,
-            importModuleDynamically: async (specifier) => {
-              const loader = asyncESM.ESMLoader;
-              return loader.import(specifier, normalizeReferrerURL(filename));
-            },
-          });
-        
-        } catch (err) {
-
-          //Throw the original error for now.
-          throw err;
-        }
+        //Throw the original error for now.
+        throw err;
       }
     }
   }

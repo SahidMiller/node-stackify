@@ -80,7 +80,7 @@ const ONLY_CONFIGURABLE = 4;
 const SKIP_STRINGS = 8;
 const SKIP_SYMBOLS = 16;
 
-export const propertyFilter = {
+const propertyFilter = {
   ALL_PROPERTIES,
   ONLY_WRITABLE,
   ONLY_ENUMERABLE,
@@ -89,7 +89,7 @@ export const propertyFilter = {
   SKIP_SYMBOLS,
 }
 
-export const getOwnNonIndexProperties = function getOwnNonIndexProperties(value, filter) {
+const getOwnNonIndexProperties = function getOwnNonIndexProperties(value, filter) {
   // noinspection JSBitwiseOperatorUsage
   const names = filter & ONLY_ENUMERABLE /* eslint-disable-line no-bitwise */ ? Object.keys(value) : Object.getOwnPropertyNames(value);
   // noinspection JSBitwiseOperatorUsage
@@ -99,3 +99,13 @@ export const getOwnNonIndexProperties = function getOwnNonIndexProperties(value,
     return isIndex(key) === false;
   });
 };
+
+export default {
+  getOwnNonIndexProperties,
+  propertyFilter
+}
+
+export {
+  getOwnNonIndexProperties,
+  propertyFilter
+}

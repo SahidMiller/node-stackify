@@ -1,22 +1,13 @@
 'use strict';
 
-const {
-  ObjectCreate,
-  ObjectDefineProperty,
-  RegExp,
-  RegExpPrototypeExec,
-  SafeArrayIterator,
-  StringPrototypeToLowerCase,
-  StringPrototypeToUpperCase,
-} = require("@darkwolf/primordials");;
+import { ObjectCreate, ObjectDefineProperty, RegExp, RegExpPrototypeExec, SafeArrayIterator, StringPrototypeToLowerCase, StringPrototypeToUpperCase } from "@darkwolf/primordials";;
 
-const { inspect, format, formatWithOptions } = require('internal/util/inspect');
+import { inspect, format, formatWithOptions } from './inspect.js';
 
 // `debugImpls` and `testEnabled` are deliberately not initialized so any call
 // to `debuglog()` before `initializeDebugEnv()` is called will throw.
 let debugImpls;
 let testEnabled;
-
 
 // `debugEnv` is initial value of process.env.NODE_DEBUG
 function initializeDebugEnv(debugEnv) {
@@ -71,6 +62,11 @@ function debuglogImpl(enabled, set) {
 function debuglog(set, cb) {
   function init() {
     set = StringPrototypeToUpperCase(set);
+
+    if (typeof testEnabled === 'undefined') {
+      initializeDebugEnv(globalThis.process && globalThis.process.env.NODE_DEBUG)
+    }
+    
     enabled = testEnabled(set);
   }
   let debug = (...args) => {
@@ -111,7 +107,12 @@ function debuglog(set, cb) {
   return logger;
 }
 
-module.exports = {
+export default {
+  debuglog,
+  initializeDebugEnv
+};
+
+export {
   debuglog,
   initializeDebugEnv
 };

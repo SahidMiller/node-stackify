@@ -65,5 +65,9 @@ export function bootstrapHandler(stream, { columns, rows }) {
     
   }
 
+  stream.getColorDepth = function() {
+    return 24;
+  }
+
   return stream
 }

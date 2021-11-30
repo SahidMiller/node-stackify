@@ -1,33 +1,13 @@
 'use strict';
 
-const {
-  ArrayIsArray,
-  ArrayPrototypeFilter,
-  ArrayPrototypePush,
-  BigIntPrototypeValueOf,
-  BooleanPrototypeValueOf,
-  DatePrototypeGetTime,
-  Error,
-  NumberIsNaN,
-  NumberPrototypeValueOf,
-  ObjectGetOwnPropertySymbols,
-  ObjectGetPrototypeOf,
-  ObjectIs,
-  ObjectKeys,
-  ObjectPrototypeHasOwnProperty,
-  ObjectPrototypePropertyIsEnumerable,
-  ObjectPrototypeToString,
-  SafeMap,
-  SafeSet,
-  StringPrototypeValueOf,
-  SymbolPrototypeValueOf,
-  TypedArrayPrototypeGetSymbolToStringTag,
-  Uint8Array,
-} = require("@darkwolf/primordials");;
+import { ArrayIsArray, ArrayPrototypeFilter, ArrayPrototypePush, BigIntPrototypeValueOf, BooleanPrototypeValueOf, DatePrototypeGetTime, Error, NumberIsNaN, NumberPrototypeValueOf, ObjectGetOwnPropertySymbols, ObjectGetPrototypeOf, ObjectIs, ObjectKeys, ObjectPrototypeHasOwnProperty, ObjectPrototypePropertyIsEnumerable, ObjectPrototypeToString, SafeMap, SafeSet, StringPrototypeValueOf, SymbolPrototypeValueOf, TypedArrayPrototypeGetSymbolToStringTag, Uint8Array } from "@darkwolf/primordials";;
 
-const { compare } = internalBinding('buffer');
-const assert = require('internal/assert');
-const types = require('internal/util/types');
+import Buffer from 'buffer';
+const { compare } = Buffer;
+
+import { fail } from 'assert';
+import types from './types.js';
+
 const {
   isAnyArrayBuffer,
   isArrayBufferView,
@@ -45,13 +25,12 @@ const {
   isFloat32Array,
   isFloat64Array,
 } = types;
+import util from '../bindings/util.js';
 const {
-  getOwnNonIndexProperties,
-  propertyFilter: {
-    ONLY_ENUMERABLE,
-    SKIP_SYMBOLS
+  getOwnNonIndexProperties, propertyFilter: {
+    ONLY_ENUMERABLE, SKIP_SYMBOLS
   }
-} = internalBinding('util');
+} = util;
 
 const kStrict = true;
 const kLoose = false;
@@ -114,7 +93,7 @@ function isEqualBoxedPrimitive(val1, val2) {
           SymbolPrototypeValueOf(val1) === SymbolPrototypeValueOf(val2);
   }
   /* c8 ignore next */
-  assert.fail(`Unknown boxed type ${val1}`);
+  fail(`Unknown boxed type ${val1}`);
 }
 
 // Notes: Type tags are historical [[Class]] properties that can be set by
@@ -588,7 +567,12 @@ function isDeepStrictEqual(val1, val2) {
   return innerDeepEqual(val1, val2, kStrict);
 }
 
-module.exports = {
+export default {
   isDeepEqual,
   isDeepStrictEqual
 };
+
+export {
+  isDeepEqual,
+  isDeepStrictEqual
+}

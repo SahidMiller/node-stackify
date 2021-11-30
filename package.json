@@ -62,7 +62,7 @@
     "./tls": "./src/tls.js",
     "./tty": "./src/tty.js",
     "./url": "./src/url.js",
-    "./util": "./src/reexports/util.js",
+    "./util": "./src/util.js",
     "./vm": "./src/reexports/vm.js",
     "./zlib": "./src/reexports/zlib.cjs",
     "./node": "./src/internal/modules/run_main.js",

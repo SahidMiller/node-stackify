@@ -38,15 +38,11 @@ import {
 const { ERR_INVALID_ARG_TYPE, ERR_NO_CRYPTO, ERR_UNKNOWN_SIGNAL } = codes;
 const kArrowMessagePrivateSymbolIndex = 0;
 const kDecoratedPrivateSymbolIndex = 1;
-// const { signals } = internalBinding('constants').os;
-// const {
-//   getHiddenValue,
-//   setHiddenValue,
-//   arrow_message_private_symbol: kArrowMessagePrivateSymbolIndex,
-//   decorated_private_symbol: kDecoratedPrivateSymbolIndex,
-//   sleep: _sleep
-// } = internalBinding('util');
-import { types, inspect } from "util_browserify";
+
+import { constants } from "os";
+const { signals } = constants;
+
+import { types } from "util_browserify";
 const { isNativeError } = types;
 
 const noCrypto = !process.versions.openssl;
@@ -54,13 +50,6 @@ const noCrypto = !process.versions.openssl;
 const experimentalWarnings = new SafeSet();
 
 const colorRegExp = /\u001b\[\d\d?m/g; // eslint-disable-line no-control-regex
-
-let uvBinding;
-
-function lazyUv() {
-  // uvBinding ??= internalBinding('uv');
-  return uvBinding;
-}
 
 function removeColors(str) {
   return StringPrototypeReplace(str, colorRegExp, "");
@@ -392,10 +381,12 @@ const kNodeModulesRE = /^(.*)[\\/]node_modules[\\/]/;
 
 let getStructuredStack;
 
+let runInNewContext
+import("vm").then(mod => ({runInNewContext} = mod));
+
 function isInsideNodeModules() {
   if (getStructuredStack === undefined) {
     // Lazy-load to avoid a circular dependency.
-    const { runInNewContext } = require("vm");
     // Use `runInNewContext()` to get something tamper-proof and
     // side-effect-free. Since this is currently only used for a deprecated API,
     // the perf implications should be okay.
@@ -439,12 +430,9 @@ function once(callback) {
 }
 
 let validateUint32;
+import("./validators.js").then((mod) => ({ validateUint32 } = mod));
 
 function sleep(msec) {
-  // Lazy-load to avoid a circular dependency.
-  if (validateUint32 === undefined)
-    ({ validateUint32 } = require("internal/validators"));
-
   validateUint32(msec, "msec");
   _sleep(msec);
 }
@@ -460,12 +448,6 @@ function createDeferredPromise() {
   return { promise, resolve, reject };
 }
 
-let DOMException;
-const lazyDOMException = hideStackFrames((message, name) => {
-  if (DOMException === undefined)
-    DOMException = internalBinding("messaging").DOMException;
-  return new DOMException(message, name);
-});
 // Symbol used to customize promisify conversion
 const customPromisifyArgs = kCustomPromisifyArgsSymbol;
 
@@ -494,15 +476,13 @@ export {
   isError,
   isInsideNodeModules,
   join,
-  lazyDOMException,
   normalizeEncoding,
   once,
   promisify,
   sleep,
   spliceOne,
   removeColors,
-  types,
-  inspect,
+
   customPromisifyArgs,
   customInspectSymbol,
   kIsEncodingSymbol,

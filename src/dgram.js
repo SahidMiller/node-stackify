@@ -39,7 +39,7 @@ const {
 } = codes;
 import { isInt32, validateAbortSignal, validateString, validateNumber, validatePort } from './internal/validators.js';
 import { Buffer } from 'buffer';
-import { deprecate, types } from './internal/util.js';
+import { deprecate, types } from 'util';
 const { isArrayBufferView } = types;
 
 const owner_symbol = Symbol('owner');

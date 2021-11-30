@@ -54,7 +54,7 @@ const resolves = {
   tls: path.resolve(__dirname, "./src/tls.js"),
   tty: path.resolve(__dirname, "./src/tty.js"),
   url: path.resolve(__dirname, "./src/url.js"),
-  util: path.resolve(__dirname, "./src/reexports/util.js"),
+  util: path.resolve(__dirname, "./src/util.js"),
   vm: path.resolve(__dirname, "./src/reexports/vm.js"),
   zlib: path.resolve(__dirname, "./src/reexports/zlib.cjs"),
   
