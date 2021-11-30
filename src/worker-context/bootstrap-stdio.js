@@ -1,52 +1,39 @@
-import { createReaderToClient, createWriterToClient } from "remote-worker-streams/worker"
 import { ReadStream, WriteStream } from "tty";
 
-export function bootstrapStdin(readablePort, options) {
+export function bootstrapStdin(handle, options) {
   options = options || {}
   const { isTTY = false } = options;
-  const readableStream = createReaderToClient(readablePort);
 
   if (isTTY) {
 
     return new ReadStream(0, {
-      handle: bootstrapHandler(readableStream, options)
+      handle: bootstrapHandler(handle, options)
     });
 
   } else {
 
-    readableStream.isTTY = false;
+    handle.isTTY = false;
     return readableStream
   }
 }
 
-import { Writable } from "stream";
-
-export function bootstrapStdout(writablePort, options) {
+export function bootstrapStdout(handle, options) {
   options = options || {}
   const { columns, rows, isTTY = false } = options;
-  const writer = createWriterToClient(writablePort);
-  const writableStream = Writable({
-    write: (chunk, enc, done) => {
-      self.postMessage({ action: "TTY_OUT", payload: chunk });
-      done();
-    },
-    destroy: () => {
-      writer.destroy()
-    }
-  })
+
   if (isTTY) {
 
     return new WriteStream(1, {
-      handle: bootstrapHandler(writableStream, options)
+      handle: bootstrapHandler(handle, options)
     });
 
   } else {
 
-    writableStream.columns = columns;
-    writableStream.rows = rows;
-    writableStream.isTTY = false;
+    handle.columns = columns;
+    handle.rows = rows;
+    handle.isTTY = false;
 
-    return writableStream
+    return handle
   }
 }
 

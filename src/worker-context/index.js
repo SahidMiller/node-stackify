@@ -1,59 +1,43 @@
-let process;
+import { PassThrough, Writable } from "stream";
+import { postMessageClient } from "./postMessageClient.js";
+import { postMessageHost } from "./postMessageHost.js";
 
-export default function bootstrap(options) {
+export default async function bootstrap(options) {
   
   if (!options || !options.bootstrapFs) {
     throw "Invalid options. options.bootstrapFs callback is required."
   } 
 
-  self.addEventListener("message", async function handleNode(e) {
-    const { action, payload, transferables } = e.data || {}
-    
-    try {
-      
-      if (action === "INIT") {
-        await init(payload, transferables, options);
-      }
+  //Pass request port for parent to make calls
+  const dispatchToParent = postMessageClient(self.postMessage);
 
-      if (action === "SIGTERM") {
-        await sigTerm(process);
-      }
-
-      if (action === "SIGKILL") {
-        await sigKill(process)
-      }
-    
-    } catch (err) {
-
-      //TODO God willing: handle any errors
-      console.log("error loading node worker", err);
-      self.close();
-    }
-  });
-}
-
-async function init(payload, transferables, options) {
-  const { bootstrapFs, beforeProcess, afterProcess, beforeExecution } = options;
-
-  //TODO God willing: get terminal columns and rows God willing;
+  //Request initialization
+  const initOptions = await dispatchToParent({ action: "GET_OPTIONS" });
   const { 
     command = "", 
     dimensions = {}, 
-    stdinIsTTY = false,
-    stdoutIsTTY = false,
     env,
-  } = payload;
-
-  const [readablePort, writablePort] = transferables;
+  } = initOptions
+  
+  //Create local streams and port to handle the stream.
+  const [stdin, stdinPort] = createStdin();
+  const [stdout, stdoutPort] = createStdout();
+  const [stderr, stderrPort] = createStdout("STDERR");
+  
+  //TODO God willing: get terminal columns and rows God willing;
+  const { isTTY: stdinIsTTY } = await dispatchToParent({ action: "STDIN_STREAM", payload: { stdinPort }, transferables: [stdinPort] });
+  const { isTTY: stdoutIsTTY } = await dispatchToParent({ action: "STDOUT_STREAM", payload: { stdoutPort }, transferables: [stdoutPort]});
+  const { isTTY: stderrIsTTY } = await dispatchToParent({ action: "STDERR_STREAM", payload: { stderrPort }, transferables: [stderrPort]});
+  
+  const { bootstrapFs, beforeProcess, afterProcess, beforeExecution } = options;
 
   const fs = await bootstrapFs();
   
   globalThis.fs = fs
   
   if (beforeProcess) {
-    await beforeProcess(payload, transferables);
+    await beforeProcess(initOptions);
   }
-
   
   const { default: Process } = await import("../process/index.js");
   
@@ -66,16 +50,23 @@ async function init(payload, transferables, options) {
   //Bootstrap stdin afterwards to take advantage of debuglog with proper errrors which streams rely on.
   const { bootstrapStdin, bootstrapStdout } = await import("./bootstrap-stdio.js");
 
-  process._stdin = bootstrapStdin(readablePort, { isTTY: stdinIsTTY });
-  process._stdout = process._stderr = bootstrapStdout(writablePort, {
+  process._stdin = bootstrapStdin(stdin, { isTTY: stdinIsTTY });
+  
+  process._stdout = bootstrapStdout(stdout, {
     isTTY: stdoutIsTTY,
+    columns: dimensions.columns,
+    rows: dimensions.rows
+  });
+
+  process._stderr = bootstrapStdout(stderr, {
+    isTTY: stderrIsTTY,
     columns: dimensions.columns,
     rows: dimensions.rows
   });
   
   //TODO God willing: could also move it to client api hooks, God willing
   if (afterProcess) {
-    await afterProcess(process, payload, transferables);
+    await afterProcess(process, initOptions);
   }
 
   //Delay setting up worker until fs is setup globally
@@ -168,4 +159,65 @@ async function bootstrapModules(modules) {
   Object.assign(globalThis, updatedBuiltins);
   
   return builtins;
+}
+
+function createStdin() {
+  const stdin = new PassThrough();
+
+  const [stdinPort, stdinClientPort] = postMessageHost(async ({ action, payload, transferables }) => {
+   
+    try {
+
+      if (action === "STDIN") {
+        stdin.write(Buffer.from(payload));
+      }
+
+      if (action === "SIGTERM") {
+        await sigTerm(process);
+      }
+
+      if (action === "SIGKILL") {
+        await sigKill(process)
+      }
+    
+    } catch (err) {
+
+      //TODO God willing: handle any errors
+      console.log("error loading node worker", err);
+      self.close();
+    }
+  });
+
+  return [stdin, stdinClientPort]
+}
+
+function createStdout(outAction = "STDOUT") {
+  const [stdoutPort, stdoutClientPort] = postMessageHost(async ({ action, payload, transferables }) => {
+    
+    try {
+
+      if (action === "RESIZE") {
+
+      }
+    
+    } catch (err) {
+
+      //TODO God willing: handle any errors
+      console.log("error loading node worker", err);
+      self.close();
+    }
+  });
+
+  const stdout = new Writable({
+    write: (chunk, encoding, done) => {
+      const action = outAction 
+      const payload = Buffer.from(chunk, encoding);
+      const transferables = [payload.buffer]
+      //Could also be created by us or them, God willing
+      stdoutPort.postMessage({ action, payload, transferables }, transferables);
+      done()
+    }
+  });
+
+  return [stdout, stdoutClientPort];
 }

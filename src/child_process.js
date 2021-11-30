@@ -1,5 +1,6 @@
 import { createWorkerThreadProcess } from "./worker-context/create-worker-thread.js";
 import Process from "./process/index.js";
+import { PassThrough, Readable } from "stream";
 
 function exec(command, options, callback) {
   
@@ -22,15 +23,15 @@ function spawn(command, args, options) {
   
   //TODO God willing: if shell = true, run /bin/bash -c process first, God willing.
   //TODO God willing: if stdio is set to inherit, auto pipe stdin/stouts, otherwise just return the stdin/out, God willing
-  const [stdin, stdout, worker] = createWorkerThreadProcess(command, options);
-  const process = new Process({ stdin, stdout, stderr: stdout });
+  const [stdin, stdout, stderr, worker] = createWorkerThreadProcess(command, options);
+  const process = new Process({ stdin, stdout, stderr });
   process.worker = worker;
 
   //TODO God willing: if closed from this side, then kill the process?
   // but if closed on remote side, then make sure to get exit code ? (not sure how to do error codes)
   stdout.on('close', () => {
     process.emit('close', 0);
-  })
+  });
 
   return process;
 }
