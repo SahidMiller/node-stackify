@@ -664,7 +664,7 @@ function doSend(ex, self, ip, list, address, port, callback) {
   req.port = port;
   if (callback) {
     req.callback = callback;
-    req.oncomplete = afterSend;
+    req.oncomplete = afterSend.bind(req);
   }
 
   let err;
